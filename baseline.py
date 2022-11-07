@@ -13,12 +13,14 @@ from nltk.corpus import stopwords
 # import nltk 
 # nltk.download('stopwords')
 
+# seed = 12
+
 #%%
 # Load the training data
 train_data = pd.read_csv("train.csv")
 
 #%%
-# Here we split our training data into trainig and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
+# Here we split our training data into training and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
 # scsplit method is used in order to split our regression data in a stratisfied way and keep a similar distribution of retweet counts between the two sets
 X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
 
@@ -29,22 +31,20 @@ X_test = X_test.drop(['retweets_count'], axis=1)
 
 #%%
 # You can examine the available features using X_train.head()
-# X_train.head()
+X_train.head()
+
 
 #%%
 # We set up an Tfidf Vectorizer that will use the top 100 tokens from the tweets. We also remove stopwords.
 # To do that we have to fit our training dataset and then transform both the training and testing dataset. 
 vectorizer = TfidfVectorizer(max_features=100, stop_words=stopwords.words('french'))
-
-#%%
-
-
 X_train = vectorizer.fit_transform(X_train['text'])
 X_test = vectorizer.transform(X_test['text'])
 
 #%%
 # Now we can train our model. Here we chose a Gradient Boosting Regressor and we set our loss function 
-reg = GradientBoostingRegressor()#reg = RandomForestRegressor() #
+reg = GradientBoostingRegressor()
+#reg = RandomForestRegressor()
 #reg = LinearRegression()
 
 #%%
