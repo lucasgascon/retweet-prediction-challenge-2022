@@ -11,57 +11,34 @@ seed = 12
 
 # Load the training data
 train_data = pd.read_csv("train.csv")
-y = train_data['retweets_count']
-X = train_data.drop(['retweets_count'], axis=1)
-X.head()
-#%%
 
-print(X.dtypes)
-#%%
+X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+X_train.head()
+# %%
 
-for col in X.select_dtypes('int'):
-    plt.figure()
-    X_col_q = X[col][X[col] < np.quantile(X[col],0.9)]
-    sns.distplot(X_col_q)
+# from sklearn.feature_selection import SelectKBest
+# from sklearn.feature_selection import chi2
+# X_train_new = SelectKBest(chi2, k=4).fit_transform(X_train.select_dtypes('int'), y_train)
+# X_train_new['text'] = X_train['text']
+# print(X_train_new.head())
+
+len_urls = X_train['urls'].map(lambda x : len(x))
+
+len_urls.sort_values(ascending = False)
 
 # %%
 
-for col in X.select_dtypes('int'):
-    plt.figure()
-    plt.scatter(X[col],y)
-    plt.title(X[col].name)
-    plt.show()
 
-#%%
-
-verified = y[np.array(X['verified'] == 1)]
-not_verified = y[np.array(X['verified'] == 0)]
-
-# plt.figure()
-# sns.distplot(verified[verified < np.quantile(verified, 0.9)], label='verified')
-# sns.distplot(not_verified[not_verified < np.quantile(not_verified, 0.9)], label='not verified')
-# plt.legend()
-
-plt.figure()
-sns.distplot(verified, label='verified')
-sns.distplot(not_verified, label='not verified')
-plt.xlim(0,2000)
-plt.ylim(0,0.0015)
-plt.legend()
-
-print(y[verified].mean())
-print(y[not_verified].mean())
-
-#%% 
-
-print(np.quantile(y[verified], [0.25, 0.5, 0.75]))
-print(np.quantile(y[not_verified], [0.25, 0.5, 0.75]))
-#%%
-
-
-sns.pairplot(X.select_dtypes('int'))
 
 # %%
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
 
-sns.clustermap(X.select_dtypes('int').corr())
-# %%
+# configure to select all features
+fs = SelectKBest(score_func=f_regression, k='all')
+# learn relationship from training data
+fs.fit(X_train, y_train)
+# transform train input data
+X_train_fs = fs.transform(X_train)
+# transform test input data
+X_test_fs = fs.transform(X_test)
