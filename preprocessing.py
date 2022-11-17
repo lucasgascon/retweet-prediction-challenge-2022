@@ -1,44 +1,35 @@
 #%%
 
+import csv
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.dummy import DummyRegressor
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import mean_absolute_error
 from verstack.stratified_continuous_split import scsplit # pip install verstack
+
+from nltk.corpus import stopwords
+
 
 seed = 12
 #%%
 
-# Load the training data
-train_data = pd.read_csv("train.csv")
+def preprocessing(X, train, vectorizer = None):
+    # We set up an Tfidf Vectorizer that will use the top 100 tokens from the tweets. We also remove stopwords.
+    # To do that we have to fit our training dataset and then transform both the training and testing dataset. 
+    
 
-X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
-X_train.head()
-# %%
+    X_only_int = X.select_dtypes('int')
 
-# from sklearn.feature_selection import SelectKBest
-# from sklearn.feature_selection import chi2
-# X_train_new = SelectKBest(chi2, k=4).fit_transform(X_train.select_dtypes('int'), y_train)
-# X_train_new['text'] = X_train['text']
-# print(X_train_new.head())
+    if train == True:
+        vectorizer = TfidfVectorizer(max_features=100, stop_words=stopwords.words('french'))
+        X_text = pd.DataFrame(vectorizer.fit_transform(X['text']).toarray(), index = X.index)
+    else : X_text = pd.DataFrame(vectorizer.transform(X['text']).toarray(), index = X.index)
 
-len_urls = X_train['urls'].map(lambda x : len(x))
+    X_new = pd.concat([X_only_int, X_text], axis = 1)
 
-len_urls.sort_values(ascending = False)
-
-# %%
-
-
-
-# %%
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import f_regression
-
-# configure to select all features
-fs = SelectKBest(score_func=f_regression, k='all')
-# learn relationship from training data
-fs.fit(X_train, y_train)
-# transform train input data
-X_train_fs = fs.transform(X_train)
-# transform test input data
-X_test_fs = fs.transform(X_test)
+    if train == True:
+        return X_new, vectorizer
+    else: return X_new
