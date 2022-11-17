@@ -28,13 +28,13 @@ y_train = train_data['retweets_count']
 X_train = train_data.drop(['retweets_count'], axis=1)
 
 from preprocessing import preprocessing
-X_train, vectorizer = preprocessing (X_train, train = True)
+X_train, vectorizer, min_max_scaler = preprocessing (X_train, train = True)
 
 # We fit our model using the training data
 reg = RandomForestRegressor()
 reg.fit(X_train, y_train)
 
-X_val = preprocessing(eval_data, train= False, vectorizer= vectorizer)
+X_val = preprocessing(eval_data, train= False, vectorizer= vectorizer, min_max_scaler = min_max_scaler)
 
 # Predict the number of retweets for the evaluation dataset
 y_pred = reg.predict(X_val)
@@ -51,4 +51,4 @@ import os
 os.makedirs('pred', exist_ok=True)  
 pred = pd.read_csv('gbr_predictions.txt')
 pred.set_index('TweetID', inplace= True)
-pred.to_csv('pred/out.csv')
+pred.to_csv('pred/out2.csv')

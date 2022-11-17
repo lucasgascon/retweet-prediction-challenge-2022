@@ -29,8 +29,8 @@ X_test = X_test.drop(['retweets_count'], axis=1)
 
 # We preprocess the data
 from preprocessing import preprocessing
-X_train, vectorizer = preprocessing(X_train, train = True)
-X_test = preprocessing(X_test, train = False, vectorizer = vectorizer)
+X_train, vectorizer, min_max_scaler = preprocessing(X_train, train = True)
+X_test = preprocessing(X_test, train = False, vectorizer = vectorizer, min_max_scaler = min_max_scaler)
 
 #%%
 # Now we can train our model. Here we chose a Gradient Boosting Regressor and we set our loss function 
