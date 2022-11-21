@@ -12,8 +12,8 @@ from verstack.stratified_continuous_split import scsplit # pip install verstack
 
 from nltk.corpus import stopwords
 
+import os
 
-#%%
 ###################################
 # Once we finalized our features and model we can train it using the whole training set and then produce prediction for the evaluating dataset
 ###################################
@@ -28,13 +28,21 @@ y_train = train_data['retweets_count']
 X_train = train_data.drop(['retweets_count'], axis=1)
 
 from preprocessing import preprocessing
-X_train, vectorizer, min_max_scaler = preprocessing (X_train, train = True)
+# X_train, vectorizer, min_max_scaler = preprocessing (X_train, train = True)
+X_train, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing (X_train, train = True)
+
 
 # We fit our model using the training data
 reg = RandomForestRegressor()
 reg.fit(X_train, y_train)
 
-X_val = preprocessing(eval_data, train= False, vectorizer= vectorizer, min_max_scaler = min_max_scaler)
+X_val, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing(eval_data, 
+        train= False, 
+        vectorizer_text = vectorizer_text, 
+        vectorizer_hashtags = vectorizer_hashtags,
+        pca = pca, 
+        scaler = scaler,
+        )
 
 # Predict the number of retweets for the evaluation dataset
 y_pred = reg.predict(X_val)
@@ -46,8 +54,6 @@ with open("gbr_predictions.txt", 'w') as f:
     for index, prediction in enumerate(y_pred):
         writer.writerow([str(eval_data['TweetID'].iloc[index]) , str(int(prediction))])
 
-#%%
-import os  
 os.makedirs('pred', exist_ok=True)  
 pred = pd.read_csv('gbr_predictions.txt')
 pred.set_index('TweetID', inplace= True)
