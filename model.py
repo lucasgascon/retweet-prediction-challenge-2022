@@ -29,13 +29,12 @@ X_test = X_test.drop(['retweets_count'], axis=1)
 
 # We preprocess the data
 from preprocessing import preprocessing
-X_train, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing(X_train, train = True)
-X_test, vectorizer_text, vectorizer_hashtags, pca, scaler  = preprocessing(X_test, 
+X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True)
+X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(X_test, 
             train = False, 
             vectorizer_text = vectorizer_text, 
             vectorizer_hashtags = vectorizer_hashtags, 
-            pca = pca,
-            scaler = scaler,
+            std_clf = std_clf,
             )
 
 #%%

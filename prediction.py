@@ -29,7 +29,7 @@ X_train = train_data.drop(['retweets_count'], axis=1)
 
 from preprocessing import preprocessing
 # X_train, vectorizer, min_max_scaler = preprocessing (X_train, train = True)
-X_train, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing (X_train, train = True)
+X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing (X_train, train = True)
 
 
 # We fit our model using the training data
@@ -40,8 +40,7 @@ X_val, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing(eval_da
         train= False, 
         vectorizer_text = vectorizer_text, 
         vectorizer_hashtags = vectorizer_hashtags,
-        pca = pca, 
-        scaler = scaler,
+        std_clf = std_clf
         )
 
 # Predict the number of retweets for the evaluation dataset

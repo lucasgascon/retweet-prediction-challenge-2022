@@ -24,6 +24,9 @@ from datetime import datetime
 
 from sklearn.preprocessing import MinMaxScaler
 
+from sklearn.naive_bayes import GaussianNB
+from sklearn.pipeline import make_pipeline
+
 seed = 12
 #%%
 
@@ -47,7 +50,7 @@ def preprocess_hashtags(X, train = True, vectorizer = None):
         hashtags = pd.DataFrame(vectorizer.transform(hashtags).toarray(), index = hashtags.index)
         return hashtags, vectorizer
 #%%
-def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, pca = None, scaler = None):
+def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
     # We set up an Tfidf Vectorizer that will use the top 100 tokens from the tweets. We also remove stopwords.
     # To do that we have to fit our training dataset and then transform both the training and testing dataset. 
     
@@ -90,13 +93,11 @@ def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, 
 
 
     if train == True:
-        scaler = StandardScaler()
-        X_scale = scaler.fit_transform(X_new)
-        pca = PCA(n_components=10)
-        X_pca = pca.fit_transform(X_scale)
-        return X_pca, vectorizer_text, vectorizer_hashtags, pca, scaler
+        std_clf = make_pipeline(StandardScaler(), PCA(n_components=2))
+        std_clf.fit(X_new)
+        X_transformed = std_clf.transform(X_new)
+        return X_new, vectorizer_text, vectorizer_hashtags, std_clf
     else: 
-        X_scale = scaler.transform(X_new)
-        X_pca = pca.transform(X_scale)
-        return X_pca, vectorizer_text, vectorizer_hashtags, pca, scaler
+        X_transformed = std_clf.transform(X_new)
+        return X_new, vectorizer_text, vectorizer_hashtags, std_clf
 
