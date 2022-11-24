@@ -1,59 +1,49 @@
-# %%
-
-import csv
+from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import RandomForestRegressor
+import time
+import pickle
 import numpy as np
-import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.dummy import DummyRegressor
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import mean_absolute_error
-from verstack.stratified_continuous_split import scsplit # pip install verstack
 
-from nltk.corpus import stopwords
+def train_nnrf(X_train_lr, y_train):
+    """ Train and store NNRF (Neural Networks - MLP + Random Forest) """
+    regr = MLPRegressor(random_state=7,
+                        hidden_layer_sizes=(64, 32, 16, 8, 8),
+                        batch_size=1024,
+                        learning_rate_init=.01,
+                        early_stopping=False,
+                        verbose=True,
+                        shuffle=True,
+                        n_iter_no_change=10)
 
-# seed = 12
+    y_train_logscale = np.log(y_train + 1.)
 
-#%%
-# Load the training data
-train_data = pd.read_csv("train.csv")
+    # fit
+    start_time = time.time()
+    regr.fit(np.log(X_train_lr.values + 1), y_train_logscale)
+    elapsed_time = time.time() - start_time
+    print("took {} seconds for fitting".format(elapsed_time))
 
-#%%
-# Here we split our training data into training and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
-# scsplit method is used in order to split our regression data in a stratisfied way and keep a similar distribution of retweet counts between the two sets
-X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+    filename = './model/nnnoval_shuffle.sav'
+    pickle.dump(regr, open(filename, 'wb'))
 
-# We remove the actual number of retweets from our features since it is the value that we are trying to predict
-X_train = X_train.drop(['retweets_count'], axis=1)
-X_test = X_test.drop(['retweets_count'], axis=1)
+    lr_y_train_predict = regr.predict(np.log(X_train_lr.values + 1))
+    # for training residual RF
+    rf_y_train = y_train_logscale - lr_y_train_predict
 
-# We preprocess the data
-from preprocessing import preprocessing
-X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True)
-X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(X_test, 
-            train = False, 
-            vectorizer_text = vectorizer_text, 
-            vectorizer_hashtags = vectorizer_hashtags, 
-            std_clf = std_clf,
-            )
+    reg = RandomForestRegressor(max_depth=18,
+                                n_estimators=500,
+                                random_state=77,
+                                n_jobs=3,
+                                verbose=5)
+    start_time = time.time()
 
-#%%
-# Now we can train our model. Here we chose a Gradient Boosting Regressor and we set our loss function 
-#reg = GradientBoostingRegressor()
-reg = RandomForestRegressor()
-#reg = LinearRegression()
+    #reg.fit(X_train[features].values, rf_y_train, )$
+    reg.fit(X_train_lr.values, rf_y_train, )
 
-#%%
-# We fit our model using the training data
-reg.fit(X_train, y_train)
-# And then we predict the values for our testing set
-y_pred = reg.predict(X_test)
-# We want to make sure that all predictions are non-negative integers
-y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+    elapsed_time = time.time() - start_time
+    print("took {} seconds for fitting".format(elapsed_time))
+    # save randomforest regressor
+    filename = './model/randomforest_regressor_1000e_nnallfeatures_rs7.sav'
+    pickle.dump(reg, open(filename, 'wb'))
 
-print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-
-
-
-
-
+    return regr

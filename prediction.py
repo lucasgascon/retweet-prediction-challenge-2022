@@ -17,31 +17,17 @@ import os
 ###################################
 # Once we finalized our features and model we can train it using the whole training set and then produce prediction for the evaluating dataset
 ###################################
-# Load the train data 
-train_data = pd.read_csv("train.csv")
 # Load the evaluation data
 eval_data = pd.read_csv("evaluation.csv")
-# Transform our data into tfidf vectors
-vectorizer = TfidfVectorizer(max_features=100, stop_words=stopwords.words('french'))
-y_train = train_data['retweets_count']
 
-X_train = train_data.drop(['retweets_count'], axis=1)
-
-from preprocessing import preprocessing
-# X_train, vectorizer, min_max_scaler = preprocessing (X_train, train = True)
-X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing (X_train, train = True)
-
+from preprocessing import load_train_data, load_validation_data
+X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags = load_train_data(test=True)
 
 # We fit our model using the training data
 reg = RandomForestRegressor()
 reg.fit(X_train, y_train)
 
-X_val, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing(eval_data, 
-        train= False, 
-        vectorizer_text = vectorizer_text, 
-        vectorizer_hashtags = vectorizer_hashtags,
-        std_clf = std_clf
-        )
+X_val = load_validation_data()
 
 # Predict the number of retweets for the evaluation dataset
 y_pred = reg.predict(X_val)
