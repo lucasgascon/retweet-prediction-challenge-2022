@@ -21,13 +21,30 @@ import os
 eval_data = pd.read_csv("evaluation.csv")
 
 from preprocessing import load_train_data, load_validation_data
-X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags = load_train_data(test=True)
+X_train, y_train, vectorizer_text, vectorizer_hashtags = load_train_data(test=False)
+
+X_train.to_csv('data/X')
+y_train.to_csv('data/y')
+
+X_train = pd.read_csv('data/X')
+y_train = pd.read_csv('data/y')['retweets_count']
+
+
 
 # We fit our model using the training data
-reg = RandomForestRegressor()
+#%%
+from model import train_custom_model
+# reg = RandomForestRegressor()
+reg = train_custom_model(X_train, y_train)
 reg.fit(X_train, y_train)
 
-X_val = load_validation_data()
+X_val = load_validation_data(
+    vectorizer_text=vectorizer_text,
+    vectorizer_hashtags=vectorizer_hashtags, 
+    )
+X_val.to_csv('data/X_val')
+X_val = pd.read_csv('data/X_val')
+#%%
 
 # Predict the number of retweets for the evaluation dataset
 y_pred = reg.predict(X_val)
@@ -43,3 +60,4 @@ os.makedirs('pred', exist_ok=True)
 pred = pd.read_csv('gbr_predictions.txt')
 pred.set_index('TweetID', inplace= True)
 pred.to_csv('pred/out2.csv')
+# %%

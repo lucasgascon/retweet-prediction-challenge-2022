@@ -46,7 +46,7 @@ X = train_data.drop(['retweets_count'], axis=1)
 
 def preprocess_text(X, train = True, vectorizer_text = None):
     if train == True:
-        vectorizer_text = TfidfVectorizer(max_features=150, stop_words=stopwords.words('french'))
+        vectorizer_text = TfidfVectorizer(max_features=100, stop_words=stopwords.words('french'))
         X_text = pd.DataFrame(vectorizer_text.fit_transform(X['text']).toarray(), index = X.index)
     else : X_text = pd.DataFrame(vectorizer_text.transform(X['text']).toarray(), index = X.index)
     X = pd.concat([X, X_text], axis = 1)
@@ -65,7 +65,7 @@ def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
 
     hashtags_text = hashtags.apply(lambda x : ' '.join(x))
     if train : 
-        vectorizer_hashtags = TfidfVectorizer(max_features=50, stop_words=stopwords.words('french'))
+        vectorizer_hashtags = TfidfVectorizer(max_features=3, stop_words=stopwords.words('french'))
         hashtags_text = pd.DataFrame(vectorizer_hashtags.fit_transform(hashtags_text).toarray(), index = hashtags.index)
     else : 
         hashtags_text = pd.DataFrame(vectorizer_hashtags.transform(hashtags_text).toarray(), index = hashtags.index)
@@ -87,12 +87,6 @@ def add_sentiments(X):
     return X
 
 
-def add_day_of_week(X):
-    m_dict = {"Mon": 1, "Tue": 2, "Wed": 3, "Thu": 4, "Fri": 5, "Sat": 6, "Sun": 7}
-    tqdm.pandas()
-    X["day_of_week"] = X["timestamp"].str[:3].progress_apply(lambda x: m_dict[x])
-    return X
-
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
     X = preprocess_time(X)
@@ -100,8 +94,6 @@ def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X = preprocess_urls(X)
 
     X = add_sentiments(X)
-
-    # X = add_day_of_week(X)
 
     return X, vectorizer_text, vectorizer_hashtags
 
@@ -115,22 +107,22 @@ def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     return X, vectorizer_text, vectorizer_hashtags
 
 #%%
-# X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
-# X_train, vectorizer_text, vectorizer_hashtags = add_variables(X_train, True)
-# X_test, vectorizer_text, vectorizer_hashtags = add_variables(X_test, False, 
-#                     vectorizer_text = vectorizer_text, 
-#                     vectorizer_hashtags = vectorizer_hashtags )
+X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+X_train, vectorizer_text, vectorizer_hashtags = add_variables(X_train, True)
+X_test, vectorizer_text, vectorizer_hashtags = add_variables(X_test, False, 
+                    vectorizer_text = vectorizer_text, 
+                    vectorizer_hashtags = vectorizer_hashtags )
 
-# X_train, vectorizer_text, vectorizer_hashtags = preprocessing(X_train, train = True)
-# X_test, vectorizer_text, vectorizer_hashtags  = preprocessing(X_test, 
-#                     train = False, 
-#                     vectorizer_text = vectorizer_text, 
-#                     vectorizer_hashtags = vectorizer_hashtags, 
-#                     )
 #%%
 
 
-
+X_train, vectorizer_text, vectorizer_hashtags = preprocessing(X_train, train = True)
+X_test, vectorizer_text, vectorizer_hashtags  = preprocessing(X_test, 
+                    train = False, 
+                    vectorizer_text = vectorizer_text, 
+                    vectorizer_hashtags = vectorizer_hashtags, 
+                    )
+#%%
 def load_train_data(test = True):
     # Load the training data
     train_data = pd.read_csv("train.csv")
@@ -140,10 +132,10 @@ def load_train_data(test = True):
         # scsplit method is used in order to split our regression data in a stratisfied way and keep a similar distribution of retweet counts between the two sets
         X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
         X_test = X_test.drop(['retweets_count'], axis=1)
+        X_train = X_train.drop(['retweets_count'], axis=1)
     else :
         y_train = train_data['retweets_count']
-        X_train = train_data.drop(['retweets_count'], axis =1)
-    X_train = X_train.drop(['retweets_count'], axis=1)
+        X_train = train_data.drop(['retweets_count'], axis=1)
     
     # We preprocess the data
     X_train, vectorizer_text, vectorizer_hashtags = preprocessing(X_train, train = True)
@@ -157,9 +149,7 @@ def load_train_data(test = True):
 
     else: return X_train, y_train, vectorizer_text, vectorizer_hashtags
 
-def load_validation_data():
-    _, _, vectorizer_text, vectorizer_hashtags = load_train_data(test = False)
-    # Load the evaluation data
+def load_validation_data(vectorizer_text, vectorizer_hashtags):
     eval_data = pd.read_csv("evaluation.csv")
     X_eval, vectorizer_text, vectorizer_hashtags= preprocessing(eval_data, 
                         train=False, 
@@ -172,6 +162,6 @@ def load_validation_data():
 
 X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags = load_train_data(test=True)
 
-
+X_train
 
 #%%
