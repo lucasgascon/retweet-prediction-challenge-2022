@@ -4,28 +4,6 @@ from sklearn.ensemble import RandomForestRegressor
 import time
 import pickle
 import numpy as np
-import pandas as pd
-
-
-def train_custom_model(X_train, y_train):
-    reg = RandomForestRegressor(
-        max_depth = 18,
-        n_estimators = 100,
-        criterion = 'squared_error',
-        max_features = 'auto',
-        random_state = 0,
-        n_jobs = -1,
-        verbose = 5,
-    )
-    start_time = time.time()
-    reg.fit(X_train, y_train)
-    elapsed_time = time.time() - start_time
-    print("took {} seconds for fitting".format(elapsed_time))
-    # save randomforest regressor
-    filename = './model/randomforest_regressor_mine3.sav'
-    pickle.dump(reg, open(filename, 'wb'))
-    return reg
-
 
 def get_normal_counter(n, logarithm="10"):
     """ Get normal counter x from log(x+1) value """
@@ -66,7 +44,7 @@ def train_nnrf(X_train, y_train):
     reg = RandomForestRegressor(max_depth=None,
                                 n_estimators=500,
                                 random_state=77,
-                                n_jobs=-1,
+                                n_jobs=7,
                                 verbose=5)
     start_time = time.time()
     reg.fit(X_train, rf_y_train, )
@@ -77,7 +55,6 @@ def train_nnrf(X_train, y_train):
     pickle.dump(reg, open(filename, 'wb'))
 
     return regr, reg
-
 
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_log_error
@@ -98,7 +75,7 @@ def train_lrrf(X_train, y_train):
 
     reg = RandomForestRegressor(max_depth=20,
                                 n_estimators=500,
-                                random_state=7,
+                                # random_state=7,
                                 n_jobs=-1,
                                 verbose=5)
     start_time = time.time()
@@ -111,4 +88,21 @@ def train_lrrf(X_train, y_train):
 
     return regr, reg
 
-        
+def train_custom_model(X_train, y_train):
+    reg = RandomForestRegressor(
+        max_depth = 18,
+        n_estimators = 100,
+        criterion = 'squared_error',
+        max_features = 'auto',
+        random_state = 0,
+        n_jobs = 7,
+        verbose = 5,
+    )
+    start_time = time.time()
+    reg.fit(X_train, y_train)
+    elapsed_time = time.time() - start_time
+    print("took {} seconds for fitting".format(elapsed_time))
+    # save randomforest regressor
+    filename = './model/randomforest_regressor_mine3.sav'
+    pickle.dump(reg, open(filename, 'wb'))
+    return reg
