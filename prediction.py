@@ -25,28 +25,33 @@ X_train, y_train, vectorizer_text, vectorizer_hashtags, std_clf = load_train_dat
 np.save('data/array/X', X_train)
 np.save('data/array/y', y_train.to_numpy())
 
-X_train = np.load('data/array/X.npy')
-y_train = np.load('data/array/y.npy')
-
-# We fit our model using the training data
-#%%
-from model import train_custom_model
-# reg = RandomForestRegressor()
-reg = train_custom_model(X_train, y_train)
-reg.fit(X_train, y_train)
-
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
     vectorizer_hashtags=vectorizer_hashtags, 
     std_clf= std_clf,
     )
-# X_val.to_csv('data/X_val')
-# X_val = pd.read_csv('data/X_val')
-#%%
+np.save('data/array/X_val', X_val)
 
-# Predict the number of retweets for the evaluation dataset
-y_pred = reg.predict(X_val)
+X_train = np.load('data/array/X.npy', allow_pickle=True)
+y_train = np.load('data/array/y.npy',allow_pickle=True)
+X_val = np.load('data/array/X_val.npy', allow_pickle=True)
+
+from model import train_nnrf, get_normal_counter
+regr, reg = train_nnrf(X_train, y_train)
+nn_y_val_predict = regr.predict(np.log(X_val + 1))
+rf_val_predict = reg.predict(X_val)
+y_pred = get_normal_counter(nn_y_val_predict + rf_val_predict, logarithm="e")
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+
+# We fit our model using the training data
+# from model import train_custom_model
+# # reg = RandomForestRegressor()
+# reg = train_custom_model(X_train, y_train)
+# reg.fit(X_train, y_train)
+# # Predict the number of retweets for the evaluation dataset
+# y_pred = reg.predict(X_val)
+# y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+
 # Dump the results into a file that follows the required Kaggle template
 with open("gbr_predictions.txt", 'w') as f:
     writer = csv.writer(f)

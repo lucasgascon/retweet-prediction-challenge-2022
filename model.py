@@ -48,20 +48,22 @@ def train_nnrf(X_train, y_train):
 
     y_train_logscale = np.log(y_train + 1.)
 
+    y_train_logscale = y_train_logscale.astype(float)
+
     # fit
     start_time = time.time()
-    regr.fit(np.log(X_train + 1), y_train_logscale)
+    regr.fit(np.log(X_train + 1.), y_train_logscale)
     elapsed_time = time.time() - start_time
     print("took {} seconds for fitting".format(elapsed_time))
 
-    # filename = './model/nnnoval_shuffle.sav'
-    # pickle.dump(regr, open(filename, 'wb'))
+    filename = './model/nnnoval_shuffle.sav'
+    pickle.dump(regr, open(filename, 'wb'))
 
-    lr_y_train_predict = regr.predict(np.log(X_train + 1))
+    lr_y_train_predict = regr.predict(np.log(X_train + 1.))
     # for training residual RF
     rf_y_train = y_train_logscale - lr_y_train_predict
 
-    reg = RandomForestRegressor(max_depth=18,
+    reg = RandomForestRegressor(max_depth=None,
                                 n_estimators=500,
                                 random_state=77,
                                 n_jobs=-1,
@@ -71,8 +73,8 @@ def train_nnrf(X_train, y_train):
     elapsed_time = time.time() - start_time
     print("took {} seconds for fitting".format(elapsed_time))
     # save randomforest regressor
-    # filename = './model/randomforest_regressor_1000e_nnallfeatures_rs7.sav'
-    # pickle.dump(reg, open(filename, 'wb'))
+    filename = './model/randomforest_regressor_500e.sav'
+    pickle.dump(reg, open(filename, 'wb'))
 
     return regr, reg
 
@@ -108,6 +110,5 @@ def train_lrrf(X_train, y_train):
     # pickle.dump(reg, open(filename, 'wb'))
 
     return regr, reg
-
 
         

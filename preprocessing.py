@@ -41,12 +41,13 @@ y = train_data['retweets_count']
 
 X = train_data.drop(['retweets_count'], axis=1)
 
+
 #%%
 
 
 def preprocess_text(X, train = True, vectorizer_text = None):
     if train == True:
-        vectorizer_text = TfidfVectorizer(max_features=170, stop_words=stopwords.words('french'))
+        vectorizer_text = TfidfVectorizer(max_features=100, stop_words=stopwords.words('french'))
         X_text = pd.DataFrame(vectorizer_text.fit_transform(X['text']).toarray(), index = X.index)
     else : X_text = pd.DataFrame(vectorizer_text.transform(X['text']).toarray(), index = X.index)
     X = pd.concat([X, X_text], axis = 1)
@@ -61,7 +62,7 @@ def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
     hashtags = X['hashtags'].apply(lambda x : x[2:-2].split(','))
     hashtags.apply(lambda x : x.remove('') if '' in x else x)
     hashtags_count = hashtags.apply(lambda x : len(x))
-    X['hashtags_count'] = hashtags_count
+    X['hashtag_count'] = hashtags_count
 
     hashtags_text = hashtags.apply(lambda x : ' '.join(x))
     if train : 
@@ -77,7 +78,7 @@ def preprocess_urls(X):
     urls = X['urls'].apply(lambda x : x[2:-2].split(','))
     urls.apply(lambda x : x.remove('') if '' in x else x)
     urls = urls.apply(lambda x : len(x))
-    X['urls_count'] = urls
+    X['url_count'] = urls
     return X
 
 def add_sentiments(X):
@@ -87,6 +88,27 @@ def add_sentiments(X):
     X['polarity_scores_compound'] = X['text'].apply(lambda text : sia.polarity_scores(text)['compound'])
     return X
 
+def other_variables(X_train):
+    # exist or not features
+    # for col in ["hashtags", "mentions", "urls"]:
+    #     X_train[col] = X_train[col].astype(str)
+    # X_train["hashtag_exist"] = X_train["hashtags"] != "null;"
+    # X_train["mention_exist"] = X_train["mentions"] != "null;"
+    # X_train["url_exist"] = X_train["urls"] != "null;"
+    # print('added exit or not features...')
+
+    mentions = X_train['hashtags'].apply(lambda x : x[2:-2].split(','))
+    mentions.apply(lambda x : x.remove('') if '' in x else x)
+    mentions_count = mentions.apply(lambda x : len(x))
+    X_train['mention_count'] = mentions_count
+
+    X_train["len_text"] = X_train["text"].apply(lambda x: len(x))
+    
+    # approx length of tweets = sum of all h/e/m/url
+    X_train["tlen"] = X_train["len_text"] + X_train["hashtag_count"] + X_train["mention_count"] + X_train[
+        "url_count"]
+
+    return X_train
 
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
@@ -95,6 +117,8 @@ def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X = preprocess_urls(X)
 
     X = add_sentiments(X)
+
+    X = other_variables(X)
 
     return X, vectorizer_text, vectorizer_hashtags
 
@@ -121,11 +145,11 @@ def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, 
     return X_transformed, vectorizer_text, vectorizer_hashtags, std_clf
 
 #%%
-X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
-X_train, vectorizer_text, vectorizer_hashtags = add_variables(X_train, True)
-X_test, vectorizer_text, vectorizer_hashtags = add_variables(X_test, False, 
-                    vectorizer_text = vectorizer_text, 
-                    vectorizer_hashtags = vectorizer_hashtags )
+# X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+# X_train, vectorizer_text, vectorizer_hashtags = add_variables(X_train, True)
+# X_test, vectorizer_text, vectorizer_hashtags = add_variables(X_test, False, 
+#                     vectorizer_text = vectorizer_text, 
+#                     vectorizer_hashtags = vectorizer_hashtags )
 
 #%%
 
@@ -177,8 +201,10 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 #%%
 
-X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
+# X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
 
-X_train
+# X_train
+
+# 
 
 # %%
