@@ -41,7 +41,7 @@ def train_nnrf(X_train, y_train):
     # for training residual RF
     rf_y_train = y_train_logscale - lr_y_train_predict
 
-    reg = RandomForestRegressor(max_depth=None,
+    reg = RandomForestRegressor(max_depth=18,
                                 n_estimators=500,
                                 random_state=77,
                                 n_jobs=7,

@@ -19,7 +19,7 @@ X = train_data.drop(['retweets_count'], axis=1)
 
 def preprocess_text(X, train = True, vectorizer_text = None):
     if train == True:
-        vectorizer_text = TfidfVectorizer(max_features=100, stop_words=stopwords.words('french'))
+        vectorizer_text = TfidfVectorizer(max_features=120, stop_words=stopwords.words('french'))
         X_text = pd.DataFrame(vectorizer_text.fit_transform(X['text']).toarray(), index = X.index)
     else : X_text = pd.DataFrame(vectorizer_text.transform(X['text']).toarray(), index = X.index)
     X = pd.concat([X, X_text], axis = 1)
@@ -28,7 +28,14 @@ def preprocess_text(X, train = True, vectorizer_text = None):
 def preprocess_time(X):
     X['month'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%m")))
     X['hour'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%H")))
+    X['day'] = X['timestamp'].apply(lambda timestamp : datetime.fromtimestamp(timestamp / 1000).strftime("%a"))
+    day = {'Mon':1, 'Tue':2, 'Wed':3, 'Thu':4, 'Fri': 5, 'Sat':6, 'Sun':7}
+    X['day'] = X['day'].apply(lambda x : day[x])
+    X['am_pm'] = X['timestamp'].apply(lambda timestamp : datetime.fromtimestamp(timestamp / 1000).strftime("%p"))
+    am_pm = {'AM': 0, 'PM':1}
+    X['am_pm'] = X['am_pm'].apply(lambda x : am_pm[x])
     return X
+
 
 def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
     hashtags = X['hashtags'].apply(lambda x : x[2:-2].split(','))
@@ -37,7 +44,7 @@ def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
     X['hashtag_count'] = hashtags_count
     hashtags_text = hashtags.apply(lambda x : ' '.join(x))
     if train : 
-        vectorizer_hashtags = TfidfVectorizer(max_features=10, stop_words=stopwords.words('french'))
+        vectorizer_hashtags = TfidfVectorizer(max_features=50, stop_words=stopwords.words('french'))
         hashtags_text = pd.DataFrame(vectorizer_hashtags.fit_transform(hashtags_text).toarray(), index = hashtags.index)
     else : 
         hashtags_text = pd.DataFrame(vectorizer_hashtags.transform(hashtags_text).toarray(), index = hashtags.index)
@@ -85,7 +92,7 @@ def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
     X = preprocess_urls(X)
-    # X = add_sentiments(X)
+    X = add_sentiments(X)
     X = other_variables(X)
     return X, vectorizer_text, vectorizer_hashtags
 
