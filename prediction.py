@@ -33,7 +33,7 @@ X_train, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing (X_tr
 
 
 # We fit our model using the training data
-reg = RandomForestRegressor()
+reg = RandomForestRegressor(n_jobs = 6)
 reg.fit(X_train, y_train)
 
 X_val, vectorizer_text, vectorizer_hashtags, pca, scaler = preprocessing(eval_data, 

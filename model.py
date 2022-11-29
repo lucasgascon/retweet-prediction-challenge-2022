@@ -41,7 +41,7 @@ X_test, vectorizer_text, vectorizer_hashtags, pca, scaler  = preprocessing(X_tes
 #%%
 # Now we can train our model. Here we chose a Gradient Boosting Regressor and we set our loss function 
 #reg = GradientBoostingRegressor()
-reg = RandomForestRegressor()
+reg = RandomForestRegressor(n_jobs = 6)
 #reg = LinearRegression()
 
 #%%
@@ -58,3 +58,5 @@ print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
 
 
+
+# %%
