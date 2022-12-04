@@ -11,6 +11,8 @@ import time
 import datetime 
 from torch.utils.tensorboard import SummaryWriter
 
+from sklearn.metrics import confusion_matrix, accuracy_score
+
 # this ensures that the current MacOS version is at least 12.3+
 print(torch.backends.mps.is_available())
 # this ensures that the current current PyTorch installation was built with MPS activated.
@@ -76,8 +78,12 @@ class MLP(nn.Module):
 
 
 # Prepare dataset
-dataset = Dataset(X_train, y_train, scale_data=False)
-trainloader = torch.utils.data.DataLoader(dataset, batch_size=10, shuffle=True, num_workers=0)
+train_dataset = Dataset(X_train, y_train, scale_data=False)
+trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=10, shuffle=True, num_workers=0)
+
+valid_dataset = Dataset(X_test, y_test, scale_data=False)
+validloader = torch.utils.data.DataLoader(valid_dataset, batch_size=10, shuffle=True, num_workers=0)
+
 
 mlp = MLP().to(device)
 
@@ -124,22 +130,63 @@ for epoch in range(0, 50): # 5 epochs at maximum
         mlp = mlp.to(device)
         outputs = mlp(inputs)
 
-        output_ = (outputs.detach().cpu().numpy() > 0)
-
-        y_train_pred.extend(output_)  # save prediction
+        outputs_ = outputs.detach().cpu().numpy()
+        y_train_pred.extend(outputs_)  # save prediction
         
         # Compute loss
         loss = loss_function(outputs, targets)
 
-        target = target.data.cpu().numpy()
-        y_train_true.extend(target)  # save ground truth
+        targets = targets.data.cpu().numpy()
+        y_train_true.extend(targets)  # save ground truth
         
         # Perform backward pass
         loss.backward()
         
         # Perform optimization
         optimizer.step()
-  
+
+        epoch_train_losses.append(loss.detach().to('cpu'))
+
+
+    y_valid_pred = []
+    y_valid_true = []
+
+    for i, data in enumerate(validloader, 0):
+
+        # Get and prepare inputs
+        inputs, targets = data
+        inputs, targets = inputs.float(), targets.float()
+        targets = targets.reshape((targets.shape[0], 1))
+
+        inputs = inputs.to(device)
+        targets = targets.to(device)
+
+        mlp = mlp.to(device)
+        outputs = mlp(inputs)
+
+        outputs_ = outputs.detach().cpu().numpy()
+        y_valid_pred.extend(outputs_)  # save prediction
+
+        loss = loss_function(outputs, targets)
+
+        targets = targets.data.cpu().numpy()
+        y_valid_true.extend(targets)  # save ground truth
+
+        epoch_valid_losses.append(loss.detach().cpu())
+      
+    
+    train_loss = sum(epoch_train_losses) / len(epoch_train_losses)
+    valid_loss = sum(epoch_valid_losses) / len(epoch_valid_losses)
+
+    tensorboard_writer.add_scalar(
+        'Training epoch loss',
+        train_loss,
+        epoch)
+    tensorboard_writer.add_scalar(
+        'Valid epoch loss',
+        valid_loss,
+        epoch)
+
 
     elapsed_time = time.time() - start_time
     print("took {} seconds for fitting".format(elapsed_time))

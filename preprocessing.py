@@ -1,21 +1,16 @@
 #%%
 
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
 from verstack.stratified_continuous_split import scsplit # pip install verstack
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from nltk.corpus import stopwords
 from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime
 from sklearn.pipeline import make_pipeline
+from nlp import preprocess_text, preprocess_text_2
 
-from gensim.test.utils import common_texts
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-
-import numpy as np
-
-import time
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 seed = 12
 
@@ -23,14 +18,6 @@ seed = 12
 train_data = pd.read_csv("train.csv")
 y = train_data['retweets_count']
 X = train_data.drop(['retweets_count'], axis=1)
-
-def preprocess_text(X, train = True, vectorizer_text = None):
-    if train == True:
-        vectorizer_text = TfidfVectorizer(max_features=120, stop_words=stopwords.words('french'))
-        X_text = pd.DataFrame(vectorizer_text.fit_transform(X['text']).toarray(), index = X.index)
-    else : X_text = pd.DataFrame(vectorizer_text.transform(X['text']).toarray(), index = X.index)
-    X = pd.concat([X, X_text], axis = 1)
-    return X, vectorizer_text
 
 #%%
 
@@ -97,7 +84,10 @@ def other_variables(X_train):
     return X_train
 
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
-    X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
+    
+    # X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
+    X, vectorizer_text = preprocess_text_2(X, train, vectorizer_text)
+
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
     X = preprocess_urls(X)
