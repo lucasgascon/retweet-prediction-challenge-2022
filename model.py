@@ -75,8 +75,9 @@ def train_lrrf(X_train, y_train):
 
     reg = RandomForestRegressor(max_depth=20,
                                 n_estimators=500,
+                                criterion = 'absolute_error',
                                 # random_state=7,
-                                n_jobs=-1,
+                                n_jobs=5,
                                 verbose=5)
     start_time = time.time()
     reg.fit(X_train, rf_y_train, )
@@ -92,10 +93,11 @@ def train_custom_model(X_train, y_train):
     reg = RandomForestRegressor(
         max_depth = 18,
         n_estimators = 100,
+        # criterion = 'absolute_error',
         criterion = 'squared_error',
         max_features = 'auto',
         random_state = 0,
-        n_jobs = 7,
+        n_jobs = 5,
         verbose = 5,
     )
     start_time = time.time()
@@ -106,3 +108,7 @@ def train_custom_model(X_train, y_train):
     filename = './model/randomforest_regressor_mine3.sav'
     pickle.dump(reg, open(filename, 'wb'))
     return reg
+
+
+
+# %%

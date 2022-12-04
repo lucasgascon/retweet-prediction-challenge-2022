@@ -10,6 +10,13 @@ from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime
 from sklearn.pipeline import make_pipeline
 
+from gensim.test.utils import common_texts
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+
+import numpy as np
+
+import time
+
 seed = 12
 
 # Load the training data
@@ -24,6 +31,8 @@ def preprocess_text(X, train = True, vectorizer_text = None):
     else : X_text = pd.DataFrame(vectorizer_text.transform(X['text']).toarray(), index = X.index)
     X = pd.concat([X, X_text], axis = 1)
     return X, vectorizer_text
+
+#%%
 
 def preprocess_time(X):
     X['month'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%m")))
