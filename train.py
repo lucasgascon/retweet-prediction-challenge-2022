@@ -14,10 +14,10 @@ import pandas as pd
 # y_train = np.load('data/' + dir + '/y_train.npy')
 # y_test = np.load('data/' + dir + '/y_test.npy')
 
-X_train = pd.read_csv('data2/csv2/X_train.csv', index_col=0)
-X_test = pd.read_csv('data2/csv2/X_test.csv', index_col=0)
-y_train = pd.read_csv('data2/csv2/y_train.csv', index_col=0)
-y_test = pd.read_csv('data2/csv2/y_test.csv', index_col=0)
+X_train = pd.read_csv('data6/csv/X_train.csv', index_col=0)
+X_test = pd.read_csv('data6/csv/X_test.csv', index_col=0)
+y_train = pd.read_csv('data6/csv/y_train.csv', index_col=0)
+y_test = pd.read_csv('data6/csv/y_test.csv', index_col=0)
 
 
 from model_rfr import train_custom_model
