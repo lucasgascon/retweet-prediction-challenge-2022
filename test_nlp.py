@@ -23,7 +23,7 @@ train_data = pd.read_csv("train.csv")
 y = train_data['retweets_count']
 train_data.drop(columns='retweets_count')
 X_train, X_test, y_train, y_test = train_test_split(train_data, y, random_state=42, test_size=0.3)
-X_train = X_train[:100][:]
+# X_train = X_train[:100][:]
 #print(X_train)
 def flatten(df, col):
     col_flat = pd.DataFrame([[i, x] for i, y in df[col].apply(list).iteritems() for x in y], columns=['I', col])
@@ -194,7 +194,7 @@ def preprocess_text_5(X, train=True, vectorizer_text = None):
 def preprocess_text_6(X, train = True, vectorizer_text = None):
     if train == True:
         text_list = X['text'].apply(lambda x : x.split(' '))
-        vectorizer_text = Word2Vec(size=100, window=5, min_count=1, workers=4)
+        vectorizer_text = Word2Vec(vector_size=100, window=5, min_count=1, workers=4)
         vectorizer_text.build_vocab(text_list)
         vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 1)
         text = X['text'].apply(lambda x : x.split(' '))
@@ -249,9 +249,7 @@ from gensim.models import Word2Vec
 
 
 text_list = X_train['text'].apply(lambda x : x.split(' '))
-vectorizer_text = Word2Vec(size=100, window=5, min_count=1, workers=4)
+vectorizer_text = Word2Vec(vector_size=100, window=5, min_count=1, workers=4)
 vectorizer_text.build_vocab(text_list)
 vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 1)
-
-print(vectorizer_text.wv['macron'])
 # %%
