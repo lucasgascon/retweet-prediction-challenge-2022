@@ -11,8 +11,6 @@ import time
 import datetime 
 from torch.utils.tensorboard import SummaryWriter
 
-from sklearn.metrics import confusion_matrix, accuracy_score
-
 # this ensures that the current MacOS version is at least 12.3+
 print(torch.backends.mps.is_available())
 # this ensures that the current current PyTorch installation was built with MPS activated.
@@ -26,10 +24,11 @@ device = 'cpu'
 
 
 # Load dataset
-X_train = np.load('data/array/X_train.npy')
-X_test = np.load('data/array/X_test.npy')
-y_train = np.load('data/array/y_train.npy')
-y_test = np.load('data/array/y_test.npy')
+dir = 'scale'
+X_train = np.load('data/' + dir + '/X_train.npy')
+X_test = np.load('data/' + dir + '/X_test.npy')
+y_train = np.load('data/' + dir + '/y_train.npy')
+y_test = np.load('data/' + dir + '/y_test.npy')
 
 
 class Dataset(torch.utils.data.Dataset):
@@ -59,7 +58,7 @@ class MLP(nn.Module):
   def __init__(self):
     super().__init__()
     self.layers = nn.Sequential(
-      nn.Linear(125, 64),
+      nn.Linear(50, 64),
       nn.ReLU(),
       nn.Linear(64, 32),
       nn.ReLU(),

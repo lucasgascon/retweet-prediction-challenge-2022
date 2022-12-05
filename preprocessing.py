@@ -12,6 +12,8 @@ from nlp import preprocess_text, preprocess_text_2
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+import numpy as np
+
 seed = 12
 
 # Load the training data
@@ -101,14 +103,14 @@ def select_columns(X):
 
 def pipeline(X, train, std_clf = None):
     if train:
-        # std_clf = make_pipeline(StandardScaler(), PCA(n_components=50))
-        std_clf = make_pipeline(StandardScaler())
+        std_clf = make_pipeline(StandardScaler(), PCA(n_components=50))
+        # std_clf = make_pipeline(StandardScaler())
         std_clf.fit(X)
         X_transformed = std_clf.transform(X)
     else:
         X_transformed = std_clf.transform(X)
-    # return X_transformed, std_clf
-    return X, std_clf
+    return X_transformed, std_clf
+    # return X, std_clf
 
 def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
     X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
@@ -155,21 +157,32 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 #%%
 
-# X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
-# X_train, vectorizer_text, vectorizer_hashtags = add_variables(X_train, True)
-# X_test, vectorizer_text, vectorizer_hashtags = add_variables(X_test, False, 
-#                     vectorizer_text = vectorizer_text, 
-#                     vectorizer_hashtags = vectorizer_hashtags )
+dir = 'scale'
 
-# X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True)
-# X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(X_test, 
-#                     train = False, 
-#                     vectorizer_text = vectorizer_text, 
-#                     vectorizer_hashtags = vectorizer_hashtags, 
-#                     std_clf = std_clf,
-#                     )
+X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
+np.save('data/' + dir + '/X_train', X_train)
+np.save('data/' + dir + '/X_test', X_test)
+np.save('data/' + dir + '/y_train', y_train.to_numpy())
+np.save('data/' + dir + '/y_test', y_test.to_numpy())
 
-# X_train, y_train, X_test, y_test, vectorizer_text, 
-#       vectorizer_hashtags, std_clf = load_train_data(test=True)
+X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
+np.save('data/' + dir + '/X', X)
+np.save('data/' + dir + '/y', y.to_numpy())
 
-# X_train
+X_val = load_validation_data(
+    vectorizer_text=vectorizer_text,
+    vectorizer_hashtags=vectorizer_hashtags,
+    std_clf = std_clf,
+    )
+np.save('data/' + dir + '/X_val', X_train)
+
+
+#%%
+
+# X_train = pd.read_csv('data/csv/X_train')
+# X_test = pd.read_csv('data/csv/X_test')
+# y_train = pd.read_csv('data/csv/y_train',index_col=0)
+# y_test = pd.read_csv('data/csv/y_test',  index_col=0)
+
+
+
