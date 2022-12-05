@@ -6,6 +6,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Lasso
 import pandas as pd
+from sklearn import svm
 
 
 # dir = 'array'
@@ -14,10 +15,10 @@ import pandas as pd
 # y_train = np.load('data/' + dir + '/y_train.npy')
 # y_test = np.load('data/' + dir + '/y_test.npy')
 
-X_train = pd.read_csv('data6/csv/X_train.csv', index_col=0)
-X_test = pd.read_csv('data6/csv/X_test.csv', index_col=0)
-y_train = pd.read_csv('data6/csv/y_train.csv', index_col=0)
-y_test = pd.read_csv('data6/csv/y_test.csv', index_col=0)
+X_train = pd.read_csv('data7/csv/X_train.csv', index_col=0)
+X_test = pd.read_csv('data7/csv/X_test.csv', index_col=0)
+y_train = np.ravel(pd.read_csv('data7/csv/y_train.csv', index_col=0))
+y_test = np.ravel(pd.read_csv('data7/csv/y_test.csv', index_col=0))
 
 
 from model_rfr import train_custom_model
@@ -31,14 +32,16 @@ from model_rfr import train_custom_model
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
 
+
 # clf = Lasso(alpha=0.2)
 # clf.fit(X_train,y_train)
 # y_pred_clf = clf.predict(X_test)
 # y_pred = [int(value) if value >= 0 else 0 for value in y_pred_clf]
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
-
-reg = RandomForestRegressor()
+reg = svm.SVR()
+# reg = KNeighborsRegressor()
+# reg = RandomForestRegressor()
 reg.fit(X_train, y_train)
 y_pred = reg.predict(X_test)
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]

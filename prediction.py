@@ -14,10 +14,10 @@ import time
 ###################################
 eval_data = pd.read_csv("evaluation.csv")
 
-X_train = pd.read_csv('data6/csv/X.csv', index_col=0)
-y_train = pd.read_csv('data6/csv/y.csv', index_col=0)
+X_train = pd.read_csv('data7/csv/X.csv', index_col=0)
+y_train = pd.read_csv('data7/csv/y.csv', index_col=0)
 
-X_val = pd.read_csv('data6/csv/X_val.csv', index_col=0)
+X_val = pd.read_csv('data7/csv/X_val.csv', index_col=0)
 
 # We fit our model using the training data
 # from model import train_custom_model

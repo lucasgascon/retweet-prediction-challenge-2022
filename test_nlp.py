@@ -194,13 +194,13 @@ def preprocess_text_5(X, train=True, vectorizer_text = None):
 def preprocess_text_6(X, train = True, vectorizer_text = None):
     
     text_list = X['text'].apply(lambda x : x.split(' '))
-    vectorizer_text = Word2Vec(vector_size=100, window=5, min_count=1, workers=4)
+    vectorizer_text = Word2Vec(vector_size=150, window=3, min_count=1, workers=-1)
     vectorizer_text.build_vocab(text_list)
-    vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 1)
+    vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 10)
     text = X['text'].apply(lambda x : x.split(' '))
     X_pretext = []
     for tweet in text:
-        moy = np.array([0.0 for i in range(100)])
+        moy = np.array([0.0 for i in range(150)])
         for word in tweet:
             moy+=vectorizer_text.wv[word]
         X_pretext.append(moy/len(tweet))

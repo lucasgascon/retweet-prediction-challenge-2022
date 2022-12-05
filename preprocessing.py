@@ -73,25 +73,21 @@ def other_variables(X_train):
     mentions_count = mentions.apply(lambda x : len(x))
     X_train['mention_count'] = mentions_count
     
-    X_train["len_text"] = X_train["text"].apply(lambda x: len(x))
     
-    # approx length of tweets = sum of all h/e/m/url
-    X_train["tlen"] = X_train["len_text"] + X_train["hashtag_count"] + X_train["mention_count"] + X_train[
-        "url_count"]
-
+    
     return X_train
 
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None, preprocess_text = preprocess_text):
-    
-    # X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
-    # X, vectorizer_text = preprocess_text_2(X, train, vectorizer_text)
+    X["len_text"] = X["text"].apply(lambda x: len(x))
+
+
     X, vectorizer_text = create_train_df(X, train, vectorizer_text = vectorizer_text, modele = 'base', function = preprocess_text)
 
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
     X = preprocess_urls(X)
     X = add_sentiments(X)
-    X = other_variables(X)
+    # X = other_variables(X)
     return X, vectorizer_text, vectorizer_hashtags
 
 def select_columns(X):
@@ -174,7 +170,7 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 # np.save('data/' + dir + '/X_val', X_train)
 
 
-preprocess_text = preprocess_text_4
+preprocess_text = preprocess_text_6
 
 X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True, preprocess_text = preprocess_text)
 
@@ -187,16 +183,15 @@ X_val = load_validation_data(
     std_clf = std_clf,
     preprocess_text = preprocess_text,
     )
-
 #%%
-os.makedirs('data5/csv', exist_ok=True)  
-X_train.to_csv('data5/csv/X_train.csv')
-X_test.to_csv('data5/csv/X_test.csv')
-X_val.to_csv('data5/csv/X_val.csv')
-X.to_csv('data5/csv/X.csv')
-y_train.to_csv('data5/csv/y_train.csv')
-y_test.to_csv('data5/csv/y_test.csv')
-y.to_csv('data5/csv/y.csv')
+os.makedirs('data7/csv', exist_ok=True)  
+X_train.to_csv('data7/csv/X_train.csv')
+X_test.to_csv('data7/csv/X_test.csv')
+X_val.to_csv('data7/csv/X_val.csv')
+X.to_csv('data7/csv/X.csv')
+y_train.to_csv('data7/csv/y_train.csv')
+y_test.to_csv('data7/csv/y_test.csv')
+y.to_csv('data7/csv/y.csv')
 
 
 

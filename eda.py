@@ -12,10 +12,13 @@ seed = 12
 # X = np.load('data/' + dir + '/X.npy')
 # y = np.load('data/' + dir + '/y.npy')
 
-X = pd.read_csv('data/csv/X.csv')
+X = pd.read_csv('data6/csv/X.csv',index_col=0)
 X.head()
 #%%
-y = pd.read_csv('data/csv/y.csv',index_col=0)
+y = pd.read_csv('data6/csv/y.csv',index_col=0)
+
+#%%
+
 
 df = X.copy()
 df['y'] = y
