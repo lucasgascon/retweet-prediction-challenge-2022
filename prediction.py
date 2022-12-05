@@ -3,54 +3,58 @@
 import csv
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.dummy import DummyRegressor
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import mean_absolute_error
-from verstack.stratified_continuous_split import scsplit # pip install verstack
-
-from nltk.corpus import stopwords
-
+import xgboost as xgb
+from xgboost import XGBRegressor
 import os
+import time
 
 ###################################
 # Once we finalized our features and model we can train it using the whole training set and then produce prediction for the evaluating dataset
 ###################################
-# Load the evaluation data
 eval_data = pd.read_csv("evaluation.csv")
 
-from preprocessing import load_train_data, load_validation_data
-X_train, y_train, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=False)
-np.save('data/array/X', X_train)
-np.save('data/array/y', y_train.to_numpy())
+X_train = pd.read_csv('data6/csv/X.csv', index_col=0)
+y_train = pd.read_csv('data6/csv/y.csv', index_col=0)
 
-X_val = load_validation_data(
-    vectorizer_text=vectorizer_text,
-    vectorizer_hashtags=vectorizer_hashtags, 
-    std_clf= std_clf,
-    )
-np.save('data/array/X_val', X_val)
-
-X_train = np.load('data/array/X.npy', allow_pickle=True)
-y_train = np.load('data/array/y.npy',allow_pickle=True)
-X_val = np.load('data/array/X_val.npy', allow_pickle=True)
-
-from model import train_nnrf, get_normal_counter
-regr, reg = train_nnrf(X_train, y_train)
-nn_y_val_predict = regr.predict(np.log(X_val + 1))
-rf_val_predict = reg.predict(X_val)
-y_pred = get_normal_counter(nn_y_val_predict + rf_val_predict, logarithm="e")
-y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+X_val = pd.read_csv('data6/csv/X_val.csv', index_col=0)
 
 # We fit our model using the training data
 # from model import train_custom_model
-# # reg = RandomForestRegressor()
 # reg = train_custom_model(X_train, y_train)
+
+# reg = RandomForestRegressor(n_jobs = -1)
 # reg.fit(X_train, y_train)
 # # Predict the number of retweets for the evaluation dataset
 # y_pred = reg.predict(X_val)
 # y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+# y_pred_2 = [round(value) if value >= 0 else 0 for value in y_pred]
+
+
+dtrain = xgb.DMatrix(X_train, label=y_train)
+dtest = xgb.DMatrix(X_val)
+
+# Set parameters
+xgb_params = {
+    'eta': 0.03,
+    'max_depth': 6,
+    'subsample': 1,
+    'objective': 'reg:linear',
+    # 'objective': 'reg:squarederror',
+    'lambda': 1.2,   
+    'alpha': 0.4, 
+}
+
+num_round = 100
+start_time = time.time()
+bst = xgb.train(xgb_params, dtrain, num_round)
+elapsed_time = time.time() - start_time
+print("took {} seconds for fitting".format(elapsed_time))
+
+y_pred = bst.predict(dtest)
+
+#%%
+y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 
 # Dump the results into a file that follows the required Kaggle template
 with open("gbr_predictions.txt", 'w') as f:

@@ -81,11 +81,11 @@ def other_variables(X_train):
 
     return X_train
 
-def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
+def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None, preprocess_text = preprocess_text):
     
     # X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
     # X, vectorizer_text = preprocess_text_2(X, train, vectorizer_text)
-    X, vectorizer_text = create_train_df(X, train, vectorizer_text = vectorizer_text, modele = 'base', function = preprocess_text_6)
+    X, vectorizer_text = create_train_df(X, train, vectorizer_text = vectorizer_text, modele = 'base', function = preprocess_text)
 
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
@@ -109,13 +109,13 @@ def pipeline(X, train, std_clf = None):
     # return X_transformed, std_clf
     return X, std_clf
 
-def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
+def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None, preprocess_text = preprocess_text):
     X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
     X = select_columns(X)
     X_transformed, std_clf = pipeline(X, train, std_clf)
     return X_transformed, vectorizer_text, vectorizer_hashtags, std_clf
 
-def load_train_data(test = True):
+def load_train_data(test = True, preprocess_text = preprocess_text_6):
     # Load the training data
     train_data = pd.read_csv("train.csv")
 
@@ -130,13 +130,14 @@ def load_train_data(test = True):
         X_train = train_data.drop(['retweets_count'], axis=1)
     
     # We preprocess the data
-    X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True)
+    X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True, preprocess_text = preprocess_text_6)
     if test == True:
         X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(X_test, 
                     train = False, 
                     vectorizer_text = vectorizer_text, 
                     vectorizer_hashtags = vectorizer_hashtags, 
                     std_clf = std_clf,
+                    preprocess_text = preprocess_text_6, 
                     )
         return X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf
 
@@ -149,6 +150,7 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
                         vectorizer_text= vectorizer_text,
                         vectorizer_hashtags=vectorizer_hashtags,
                         std_clf = std_clf,
+                        preprocess_text = preprocess_text_6,
                         )
     return X_eval
 
@@ -172,25 +174,29 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 # np.save('data/' + dir + '/X_val', X_train)
 
 
-X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
+preprocess_text = preprocess_text_4
+
+X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True, preprocess_text = preprocess_text)
 
 X_train.head()
 
-X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
+X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False, preprocess_text = preprocess_text)
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
     vectorizer_hashtags=vectorizer_hashtags,
     std_clf = std_clf,
+    preprocess_text = preprocess_text,
     )
 
-os.makedirs('data6', exist_ok=True)  
-X_train.to_csv('data6/csv/X_train.csv')
-X_test.to_csv('data6/csv/X_test.csv')
-X_val.to_csv('data6/csv/X_val.csv')
-X.to_csv('data6/csv/X.csv')
-y_train.to_csv('data6/csv/y_train.csv')
-y_test.to_csv('data6/csv/y_test.csv')
-y.to_csv('data6/csv/y.csv')
+#%%
+os.makedirs('data5/csv', exist_ok=True)  
+X_train.to_csv('data5/csv/X_train.csv')
+X_test.to_csv('data5/csv/X_test.csv')
+X_val.to_csv('data5/csv/X_val.csv')
+X.to_csv('data5/csv/X.csv')
+y_train.to_csv('data5/csv/y_train.csv')
+y_test.to_csv('data5/csv/y_test.csv')
+y.to_csv('data5/csv/y.csv')
 
 
 

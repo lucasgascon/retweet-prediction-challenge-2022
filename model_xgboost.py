@@ -27,13 +27,14 @@ xgb_params = {
     'eta': 0.03,
     'max_depth': 6,
     'subsample': 1,
-    # 'objective': 'reg:linear',
-    'objective': 'reg:squarederror',
+    'objective': 'reg:linear',
+    # 'objective': 'reg:squarederror',
     'lambda': 1.2,   
     'alpha': 0.4, 
+    'n_jobs': 5,
 }
 
-num_round = 100
+num_round = 1000
 start_time = time.time()
 bst = xgb.train(xgb_params, dtrain, num_round)
 elapsed_time = time.time() - start_time
@@ -44,36 +45,35 @@ y_pred = bst.predict(dtest)
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
-#%%
 
-xgb1 = XGBRegressor()
-parameters = {'nthread':[4], #when use hyperthread, xgboost may become slower
-              'objective':['reg:linear'],
-              'learning_rate': [0.05], #so called `eta` value
-              'max_depth': [6],
-              'min_child_weight': [4],
-              'subsample': [0.8],
-              'colsample_bytree': [0.7],
-              'n_estimators': [100],
-            #   'eta': [0.01,0.04],
-            #   'lambda': [0.4, 1.2],
-            #   'alpha': [0.2,0.4, 0.6],
-              }
+# xgb1 = XGBRegressor()
+# parameters = {'nthread':[4], #when use hyperthread, xgboost may become slower
+#               'objective':['reg:linear'],
+#               'learning_rate': [0.05], #so called `eta` value
+#               'max_depth': [6],
+#               'min_child_weight': [4],
+#               'subsample': [0.8],
+#               'colsample_bytree': [0.7],
+#               'n_estimators': [100],
+#             #   'eta': [0.01,0.04],
+#             #   'lambda': [0.4, 1.2],
+#             #   'alpha': [0.2,0.4, 0.6],
+#               }
 
-xgb_grid = GridSearchCV(xgb1,
-                        parameters,
-                        cv = 2,
-                        n_jobs = -1,
-                        verbose=True)
+# xgb_grid = GridSearchCV(xgb1,
+#                         parameters,
+#                         cv = 2,
+#                         n_jobs = -1,
+#                         verbose=True)
 
-xgb_grid.fit(X_train,y_train)
+# xgb_grid.fit(X_train,y_train)
 
-print(xgb_grid.best_score_)
-print(xgb_grid.best_params_)
+# print(xgb_grid.best_score_)
+# print(xgb_grid.best_params_)
 
-grid_predictions = xgb_grid.predict(X_test) 
-y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
-print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+# grid_predictions = xgb_grid.predict(X_test) 
+# y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+# print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
 
 
