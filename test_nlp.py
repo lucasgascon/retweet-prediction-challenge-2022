@@ -15,7 +15,7 @@ import spacy as sp
 train_data = pd.read_csv("train.csv")
 y = train_data['retweets_count']
 train_data.drop(columns='retweets_count')
-X_train, X_test, y_train, y_test = train_test_split(train_data, y, random_state=42, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(train_data, y, random_state=42, test_size=0.0001)
 
 
 print()
@@ -101,8 +101,7 @@ def preprocess_text_4(X, train = True, vectorizer_text = None):
         
 
 
-
-preprocess_text_4(X_train)
+preprocess_text_4(X_test)
 # %%
 
 

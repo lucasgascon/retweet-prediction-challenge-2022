@@ -66,13 +66,6 @@ def add_sentiments(X):
     return X
 
 def other_variables(X_train):
-    # exist or not features
-    # for col in ["hashtags", "mentions", "urls"]:
-    #     X_train[col] = X_train[col].astype(str)
-    # X_train["hashtag_exist"] = X_train["hashtags"] != "null;"
-    # X_train["mention_exist"] = X_train["mentions"] != "null;"
-    # X_train["url_exist"] = X_train["urls"] != "null;"
-    # print('added exit or not features...')
 
     mentions = X_train['hashtags'].apply(lambda x : x[2:-2].split(','))
     mentions.apply(lambda x : x.remove('') if '' in x else x)

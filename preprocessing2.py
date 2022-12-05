@@ -36,12 +36,6 @@ def preprocess_time(X):
     X['hour'] = X['hour'].apply(lambda x : hours[x])
     return X
 
-def prepocess_range_datas(X):
-    X['favorites_count']=X['favorites_count']-X['favorites_count']%10
-    X['followers_count']=X['followers_count']-X['followers_count']%10
-    X['statuses_count']=X['statuses_count']-X['statuses_count']%10
-    X['friends_count']=X['friends_count']-X['friends_count']%10
-    return X
 
 def hashtagvalue(x):
     if x<6:
@@ -89,38 +83,23 @@ def len_text_value(x):
         return 1
     return 0
 
-def other_variables(X_train):
-    # exist or not features
-    # for col in ["hashtags", "mentions", "urls"]:
-    #     X_train[col] = X_train[col].astype(str)
-    # X_train["hashtag_exist"] = X_train["hashtags"] != "null;"
-    # X_train["mention_exist"] = X_train["mentions"] != "null;"
-    # X_train["url_exist"] = X_train["urls"] != "null;"
-    # print('added exit or not features...')
 
-    mentions = X_train['hashtags'].apply(lambda x : x[2:-2].split(','))
-    mentions.apply(lambda x : x.remove('') if '' in x else x)
-    mentions_count = mentions.apply(lambda x : hashtagvalue(len_text_value(len(x))))
-    X_train['mention_count'] = mentions_count
-    
-    X_train["len_text"] = X_train["text"].apply(lambda x: len(x))
-    
-    # approx length of tweets = sum of all h/e/m/url
-    X_train["tlen"] = X_train["len_text"] + X_train["hashtag_count"] + X_train["mention_count"] + X_train[
-        "url_count"]
-
-    return X_train
+def prepocess_range_datas(X):
+    X['favorites_count']=X['favorites_count']-X['favorites_count']%10
+    X['followers_count']=X['followers_count']-X['followers_count']%10
+    X['statuses_count']=X['statuses_count']-X['statuses_count']%10
+    X['friends_count']=X['friends_count']-X['friends_count']%10
+    return X
 
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     
-    # X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
-    X, vectorizer_text = preprocess_text_2(X, train, vectorizer_text)
+    X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
+    # X, vectorizer_text = preprocess_text_2(X, train, vectorizer_text)
 
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
     X = preprocess_urls(X)
     X = add_sentiments(X)
-    X = other_variables(X)
     X = prepocess_range_datas(X)
     return X, vectorizer_text, vectorizer_hashtags
 
@@ -205,27 +184,18 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 
 X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
-X_train
-# X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
-# X_val = load_validation_data(
-#     vectorizer_text=vectorizer_text,
-#     vectorizer_hashtags=vectorizer_hashtags,
-#     std_clf = std_clf,
-#     )
+X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
+X_val = load_validation_data(
+    vectorizer_text=vectorizer_text,
+    vectorizer_hashtags=vectorizer_hashtags,
+    std_clf = std_clf,
+    )
 
-# os.makedirs('data', exist_ok=True)  
-# X_train.to_csv('data/csv/X_train.csv')
-# X_test.to_csv('data/csv/X_test.csv')
-# X_val.to_csv('data/csv/X_val.csv')
-# X.to_csv('data/csv/X.csv')
-# y_train.to_csv('data/csv/y_train.csv')
-# y_test.to_csv('data/csv/y_test.csv')
-# y.to_csv('data/csv/y.csv')
-
-
-
-
-
-
-
-# %%
+os.makedirs('data2/csv2', exist_ok=True)  
+X_train.to_csv('data2/csv2/X_train.csv')
+X_test.to_csv('data2/csv2/X_test.csv')
+X_val.to_csv('data2/csv2/X_val.csv')
+X.to_csv('data2/csv2/X.csv')
+y_train.to_csv('data2/csv2/y_train.csv')
+y_test.to_csv('data2/csv2/y_test.csv')
+y.to_csv('data2/csv2/y.csv')

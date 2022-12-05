@@ -33,7 +33,7 @@ def tagged(text_l):
 
 def preprocess_text(X, train = True, vectorizer_text = None):
     if train == True:
-        vectorizer_text = TfidfVectorizer(max_features=120, stop_words=stopwords.words('french'))
+        vectorizer_text = TfidfVectorizer(max_features=150, stop_words=stopwords.words('french'))
         X_text = pd.DataFrame(vectorizer_text.fit_transform(X['text']).toarray(), index = X.index)
     else : X_text = pd.DataFrame(vectorizer_text.transform(X['text']).toarray(), index = X.index)
     X = pd.concat([X, X_text], axis = 1)

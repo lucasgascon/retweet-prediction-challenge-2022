@@ -6,14 +6,18 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_absolute_error
 import time
+import pandas as pd
 
-dir ='array'
+# dir ='array'
+# X_train = np.load('data/' + dir + '/X_train.npy')
+# X_test = np.load('data/' + dir + '/X_test.npy')
+# y_train = np.load('data/' + dir + '/y_train.npy')
+# y_test = np.load('data/' + dir + '/y_test.npy')
 
-X_train = np.load('data/' + dir + '/X_train.npy')
-X_test = np.load('data/' + dir + '/X_test.npy')
-y_train = np.load('data/' + dir + '/y_train.npy')
-y_test = np.load('data/' + dir + '/y_test.npy')
-
+X_train = pd.read_csv('data2/csv2/X_train.csv', index_col=0)
+X_test = pd.read_csv('data2/csv2/X_test.csv', index_col=0)
+y_train = pd.read_csv('data2/csv2/y_train.csv', index_col=0)
+y_test = pd.read_csv('data2/csv2/y_test.csv', index_col=0)
 
 dtrain = xgb.DMatrix(X_train, label=y_train)
 dtest = xgb.DMatrix(X_test)

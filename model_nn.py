@@ -32,6 +32,11 @@ device = 'cpu'
 # y_test = np.load('data/' + dir + '/y_test.npy')
 # print(X_train.shape)
 
+# X_train = pd.read_csv('data2/csv2/X_train.csv', index_col=0).to_numpy()
+# X_test = pd.read_csv('data2/csv2/X_test.csv', index_col=0).to_numpy()
+# y_train = pd.read_csv('data2/csv2/y_train.csv', index_col=0).to_numpy()
+# y_test = pd.read_csv('data2/csv2/y_test.csv', index_col=0).to_numpy()
+
 X_train = pd.read_csv('data/csv/X_train.csv', index_col=0).to_numpy()
 X_test = pd.read_csv('data/csv/X_test.csv', index_col=0).to_numpy()
 y_train = pd.read_csv('data/csv/y_train.csv', index_col=0).to_numpy()
@@ -117,9 +122,6 @@ class MLP2(nn.Module):
       Forward pass
     '''
     return self.layers(x)
-
-
-
 
 # Prepare dataset
 train_dataset = Dataset(X_train, y_train, scale_data=False)
