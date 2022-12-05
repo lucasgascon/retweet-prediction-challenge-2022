@@ -19,7 +19,6 @@ from model import train_custom_model
 reg = RandomForestRegressor()
 reg.fit(X_train, y_train)
 
-
 y_pred = reg.predict(X_test)
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))

@@ -56,38 +56,6 @@ def train_nnrf(X_train, y_train):
 
     return regr, reg
 
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_log_error
-def train_lrrf(X_train, y_train):
-    """ Train and store LRRF (LR + Random Forest) """
-    y_train_logscale = np.log(y_train + 1.)
-    regr = LinearRegression(fit_intercept=False).fit(np.log(X_train+1), y_train_logscale)
-    # filename = './model/lr.sav'
-    # pickle.dump(reg, open(filename, 'wb'))
-
-    # predict
-    lr_y_train_predict = regr.predict(np.log(X_train + 1))
-    lr_yhat = get_normal_counter(lr_y_train_predict, logarithm="e")
-    print(mean_squared_log_error(lr_yhat, y_train))
-
-    # for training residual RF
-    rf_y_train = y_train_logscale - lr_y_train_predict
-
-    reg = RandomForestRegressor(max_depth=20,
-                                n_estimators=500,
-                                criterion = 'absolute_error',
-                                # random_state=7,
-                                n_jobs=5,
-                                verbose=5)
-    start_time = time.time()
-    reg.fit(X_train, rf_y_train, )
-    elapsed_time = time.time() - start_time
-    print("took {} seconds for fitting".format(elapsed_time))
-    # save randomforest regressor
-    # filename = './model/randomforest_regressor_500e_lrallfeatures_rs7.sav'
-    # pickle.dump(reg, open(filename, 'wb'))
-
-    return regr, reg
 
 def train_custom_model(X_train, y_train):
     reg = RandomForestRegressor(

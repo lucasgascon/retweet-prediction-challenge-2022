@@ -186,7 +186,6 @@ for epoch in range(0, 50): # 5 epochs at maximum
         valid_loss,
         epoch)
 
-
     elapsed_time = time.time() - start_time
     print("took {} seconds for fitting".format(elapsed_time))
 

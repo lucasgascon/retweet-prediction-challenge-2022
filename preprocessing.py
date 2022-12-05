@@ -14,6 +14,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 import numpy as np
 
+import os
+
 seed = 12
 
 # Load the training data
@@ -109,8 +111,8 @@ def pipeline(X, train, std_clf = None):
         X_transformed = std_clf.transform(X)
     else:
         X_transformed = std_clf.transform(X)
-    return X_transformed, std_clf
-    # return X, std_clf
+    # return X_transformed, std_clf
+    return X, std_clf
 
 def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
     X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
@@ -155,34 +157,48 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
                         )
     return X_eval
 
+
 #%%
 
-dir = 'scale'
+# dir = 'scale'
+# X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
+# np.save('data/' + dir + '/X_train', X_train)
+# np.save('data/' + dir + '/X_test', X_test)
+# np.save('data/' + dir + '/y_train', y_train.to_numpy())
+# np.save('data/' + dir + '/y_test', y_test.to_numpy())
+# X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
+# np.save('data/' + dir + '/X', X)
+# np.save('data/' + dir + '/y', y.to_numpy())
+# X_val = load_validation_data(
+#     vectorizer_text=vectorizer_text,
+#     vectorizer_hashtags=vectorizer_hashtags,
+#     std_clf = std_clf,
+#     )
+# np.save('data/' + dir + '/X_val', X_train)
+
 
 X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
-np.save('data/' + dir + '/X_train', X_train)
-np.save('data/' + dir + '/X_test', X_test)
-np.save('data/' + dir + '/y_train', y_train.to_numpy())
-np.save('data/' + dir + '/y_test', y_test.to_numpy())
-
 X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
-np.save('data/' + dir + '/X', X)
-np.save('data/' + dir + '/y', y.to_numpy())
-
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
     vectorizer_hashtags=vectorizer_hashtags,
     std_clf = std_clf,
     )
-np.save('data/' + dir + '/X_val', X_train)
-
 
 #%%
+os.makedirs('data', exist_ok=True)  
+X_train.to_csv('data/csv/X_train.csv')
+X_test.to_csv('data/csv/X_test.csv')
+X_val.to_csv('data/csv/X_val.csv')
+X.to_csv('data/csv/X.csv')
+y_train.to_csv('data/csv/y_train.csv')
+y_test.to_csv('data/csv/y_test.csv')
+y.to_csv('data/csv/y.csv')
 
-# X_train = pd.read_csv('data/csv/X_train')
-# X_test = pd.read_csv('data/csv/X_test')
-# y_train = pd.read_csv('data/csv/y_train',index_col=0)
-# y_test = pd.read_csv('data/csv/y_test',  index_col=0)
 
 
 
+
+
+
+# %%

@@ -8,10 +8,10 @@ import time
 from sklearn.model_selection import GridSearchCV, RepeatedKFold, cross_val_score
 
 
-dir ='scale'
+dir ='array'
 
 X_train = np.load('data/' + dir + '/X_train.npy')
-X_test = np.load('data/' + dir + 'X_test.npy')
+X_test = np.load('data/' + dir + '/X_test.npy')
 y_train = np.load('data/' + dir + '/y_train.npy')
 y_test = np.load('data/' + dir + '/y_test.npy')
 
