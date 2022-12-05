@@ -5,7 +5,6 @@
 from gensim.test.utils import common_texts
 from gensim.models import Word2Vec
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-import spacy_sentence_bert
 from transformers import FlaubertModel, FlaubertTokenizer
 import torch
 import numpy as np
