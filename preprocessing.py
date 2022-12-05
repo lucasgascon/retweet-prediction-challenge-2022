@@ -8,7 +8,7 @@ from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime
 from sklearn.pipeline import make_pipeline
 from nlp import preprocess_text, preprocess_text_2
-from test_nlp import create_train_df
+from test_nlp import *
 
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -176,21 +176,21 @@ X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf 
 
 X_train.head()
 
-# X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
-# X_val = load_validation_data(
-#     vectorizer_text=vectorizer_text,
-#     vectorizer_hashtags=vectorizer_hashtags,
-#     std_clf = std_clf,
-#     )
+X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
+X_val = load_validation_data(
+    vectorizer_text=vectorizer_text,
+    vectorizer_hashtags=vectorizer_hashtags,
+    std_clf = std_clf,
+    )
 
-# os.makedirs('data', exist_ok=True)  
-# X_train.to_csv('data/csv/X_train.csv')
-# X_test.to_csv('data/csv/X_test.csv')
-# X_val.to_csv('data/csv/X_val.csv')
-# X.to_csv('data/csv/X.csv')
-# y_train.to_csv('data/csv/y_train.csv')
-# y_test.to_csv('data/csv/y_test.csv')
-# y.to_csv('data/csv/y.csv')
+os.makedirs('data6', exist_ok=True)  
+X_train.to_csv('data6/csv/X_train.csv')
+X_test.to_csv('data6/csv/X_test.csv')
+X_val.to_csv('data6/csv/X_val.csv')
+X.to_csv('data6/csv/X.csv')
+y_train.to_csv('data6/csv/y_train.csv')
+y_test.to_csv('data6/csv/y_test.csv')
+y.to_csv('data6/csv/y.csv')
 
 
 
