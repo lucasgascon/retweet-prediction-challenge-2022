@@ -1,8 +1,9 @@
 # %%
 import numpy as np
 from sklearn.metrics import mean_absolute_error
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Lasso
 import pandas as pd
@@ -22,7 +23,7 @@ y_test = np.ravel(pd.read_csv('data7/csv/y_test.csv', index_col=0))
 
 
 from model_rfr import train_custom_model
-# reg = train_custom_model(X_train, y_train)
+reg = train_custom_model(X_train, y_train)
 
 
 # dt_reg = DecisionTreeRegressor(random_state=0, criterion='friedman_mse', ccp_alpha=0.1)
@@ -31,21 +32,22 @@ from model_rfr import train_custom_model
 # y_pred = [int(value) if value >= 0 else 0 for value in y_pred_dt]
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
-
-
 # clf = Lasso(alpha=0.2)
 # clf.fit(X_train,y_train)
 # y_pred_clf = clf.predict(X_test)
 # y_pred = [int(value) if value >= 0 else 0 for value in y_pred_clf]
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
-reg = svm.SVR()
-# reg = KNeighborsRegressor()
-# reg = RandomForestRegressor()
+# reg = svm.SVR(n_jobs = -1)
+# reg = KNeighborsRegressor(n_jobs = -1)
+# reg = GradientBoostingRegressor (n_jobs = -1)
+# reg = RandomForestRegressor(n_jobs = 6)
 reg.fit(X_train, y_train)
 y_pred = reg.predict(X_test)
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+#%%
+np.save('pred/pred_rfr', y_pred)
 
 
 # feature_importance = pd.Series(reg.feature_importances_, index= X_train.columns)

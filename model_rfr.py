@@ -15,7 +15,7 @@ def get_normal_counter(n, logarithm="10"):
 
 def train_nnrf(X_train, y_train):
     """ Train and store NNRF (Neural Networks - MLP + Random Forest) """
-    regr = MLPRegressor(random_state=7,
+    regr = MLPRegressor(random_state=6,
                         hidden_layer_sizes=(64, 32, 16, 8, 8),
                         batch_size=1024,
                         learning_rate_init=.01,

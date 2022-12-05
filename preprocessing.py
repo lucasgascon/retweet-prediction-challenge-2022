@@ -105,8 +105,8 @@ def pipeline(X, train, std_clf = None):
     # return X_transformed, std_clf
     return X, std_clf
 
-def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None, preprocess_text = preprocess_text):
-    X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
+def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None, preprocess_text = preprocess_text_6):
+    X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags, preprocess_text= preprocess_text)
     X = select_columns(X)
     X_transformed, std_clf = pipeline(X, train, std_clf)
     return X_transformed, vectorizer_text, vectorizer_hashtags, std_clf
@@ -126,27 +126,26 @@ def load_train_data(test = True, preprocess_text = preprocess_text_6):
         X_train = train_data.drop(['retweets_count'], axis=1)
     
     # We preprocess the data
-    X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True, preprocess_text = preprocess_text_6)
-    if test == True:
+    X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True, preprocess_text = preprocess_text)
+    if test == True: 
         X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(X_test, 
                     train = False, 
                     vectorizer_text = vectorizer_text, 
                     vectorizer_hashtags = vectorizer_hashtags, 
                     std_clf = std_clf,
-                    preprocess_text = preprocess_text_6, 
+                    preprocess_text = preprocess_text, 
                     )
         return X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf
 
     else: return X_train, y_train, vectorizer_text, vectorizer_hashtags, std_clf
-
-def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
+#%%
+def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf, preprocess_text = preprocess_text_6):
     eval_data = pd.read_csv("evaluation.csv")
     X_eval, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(eval_data, 
                         train=False, 
                         vectorizer_text= vectorizer_text,
                         vectorizer_hashtags=vectorizer_hashtags,
                         std_clf = std_clf,
-                        preprocess_text = preprocess_text_6,
                         )
     return X_eval
 
@@ -172,26 +171,28 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 preprocess_text = preprocess_text_6
 
-X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True, preprocess_text = preprocess_text)
+# X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True, preprocess_text = preprocess_text)
 
-X_train.head()
+# X_train.head()
 
 X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False, preprocess_text = preprocess_text)
+
+#%%
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
     vectorizer_hashtags=vectorizer_hashtags,
     std_clf = std_clf,
     preprocess_text = preprocess_text,
     )
-#%%
-os.makedirs('data7/csv', exist_ok=True)  
-X_train.to_csv('data7/csv/X_train.csv')
-X_test.to_csv('data7/csv/X_test.csv')
-X_val.to_csv('data7/csv/X_val.csv')
-X.to_csv('data7/csv/X.csv')
-y_train.to_csv('data7/csv/y_train.csv')
-y_test.to_csv('data7/csv/y_test.csv')
-y.to_csv('data7/csv/y.csv')
+
+os.makedirs('data8/csv', exist_ok=True)  
+X_train.to_csv('data8/csv/X_train.csv')
+X_test.to_csv('data8/csv/X_test.csv')
+X_val.to_csv('data8/csv/X_val.csv')
+X.to_csv('data8/csv/X.csv')
+y_train.to_csv('data8/csv/y_train.csv')
+y_test.to_csv('data8/csv/y_test.csv')
+y.to_csv('data8/csv/y.csv')
 
 
 

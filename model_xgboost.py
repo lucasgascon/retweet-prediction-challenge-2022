@@ -25,10 +25,11 @@ print('device : ', device)
 # y_train = np.load('data/' + dir + '/y_train.npy')
 # y_test = np.load('data/' + dir + '/y_test.npy')
 
-X_train = pd.read_csv('data7/csv/X_train.csv', index_col=0)
-X_test = pd.read_csv('data7/csv/X_test.csv', index_col=0)
-y_train = pd.read_csv('data7/csv/y_train.csv', index_col=0)
-y_test = pd.read_csv('data7/csv/y_test.csv', index_col=0)
+X_train = pd.read_csv('data8/csv/X_train.csv', index_col=0)
+X_test = pd.read_csv('data8/csv/X_test.csv', index_col=0)
+y_train = pd.read_csv('data8/csv/y_train.csv', index_col=0)
+y_test = pd.read_csv('data8/csv/y_test.csv', index_col=0)
+
 
 dtrain = xgb.DMatrix(X_train, label=y_train)
 dtest = xgb.DMatrix(X_test)
@@ -53,8 +54,10 @@ print("took {} seconds for fitting".format(elapsed_time))
 
 #%%
 y_pred = bst.predict(dtest)
-y_pred_ = [int(value) if value >= 0 else 0 for value in y_pred]
-print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred_))
+y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+
+np.save('pred/pred_xgb2', y_pred)
 
 
 #%%
