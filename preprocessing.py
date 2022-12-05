@@ -8,6 +8,7 @@ from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime
 from sklearn.pipeline import make_pipeline
 from nlp import preprocess_text, preprocess_text_2
+from test_nlp import create_train_df
 
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -84,7 +85,7 @@ def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     
     # X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
     X, vectorizer_text = preprocess_text_2(X, train, vectorizer_text)
-    X, vectorizer_text = create_train_df(X, train = True, vectorizer_text = None, modele = 'base', function = preprocess_text_2)
+    X, vectorizer_text = create_train_df(X, train = True, vectorizer_text = None, modele = 'base', function = preprocess_text_6)
 
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
