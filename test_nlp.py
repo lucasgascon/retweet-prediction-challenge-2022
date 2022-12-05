@@ -2,16 +2,16 @@
 
 
 #%%
-'''from gensim.test.utils import common_texts
+from gensim.test.utils import common_texts
 from gensim.models import Word2Vec
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument'''
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import spacy_sentence_bert
 from transformers import FlaubertModel, FlaubertTokenizer
 import torch
 import numpy as np
 from sklearn.model_selection import train_test_split
 import pandas as pd
-
+import spacy as sp
 
 train_data = pd.read_csv("train.csv")
 y = train_data['retweets_count']
@@ -38,6 +38,10 @@ def flaubert_vect(sentence, flaubert_tokenizer, flaubert):
     cls_embedding = last_layer[:, 0, :]
     return cls_embedding.detach().numpy()[0]
 
+
+def spacy_vect(sentence, nlp_spacy):
+    doc = nlp_spacy(sentence)
+    return doc.vector
 
 def preprocess_text_3(X, train = True, vectorizer_text = None):
 
@@ -72,20 +76,35 @@ def preprocess_text_3(X, train = True, vectorizer_text = None):
     X = pd.concat([X, X_text], axis = 1)
     print(X)
     return X, vectorizer_text
+
+def preprocess_text_4(X, train = True, vectorizer_text = None):
+
+    if train == True:
+        nlp_spacy = sp.load("fr_core_news_sm")
+        text = X_train['text']
+        print(text)
+        text_vect = []
+        i = 0
+        for sent in text:
+            text_vect.append(spacy_vect(sent, nlp_spacy))
+            print(i)
+            i+=1
+        #X_pretext = text.apply(lambda x : flaubert_vect(x, flaubert_tokenizer, flaubert))
+        X_pretext = text_vect
+        print(X_pretext)
+        flatten_df = flatten(pd.DataFrame(X_pretext), 'text')
+        vectorize_array = np.reshape(np.array(flatten_df.values), (-1, 100))
+        X_text = pd.DataFrame(vectorize_array, index = X.index)
+ 
+    X = pd.concat([X, X_text], axis = 1)
+    print(X)
+    return X, vectorizer_text
         
 
 
 
-#preprocess_text_3(X_train)
+preprocess_text_4(X_train)
 # %%
-import spacy_sentence_bert
-# load one of the models listed at https://github.com/MartinoMensio/spacy-sentence-bert/
-nlp = spacy_sentence_bert.load_model('en_roberta_large_nli_stsb_mean_tokens')
-# get two documents
-doc_1 = nlp('Hi there, how are you?')
-doc_2 = nlp('Hello there, how are you doing today?')
-# use the similarity method that is based on the vectors, on Doc, Span or Token
-print(doc_1.similarity(doc_2[0:7]))
 
 
 # %%
