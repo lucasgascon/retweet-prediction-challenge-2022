@@ -22,8 +22,8 @@ y_train = np.ravel(pd.read_csv('data7/csv/y_train.csv', index_col=0))
 y_test = np.ravel(pd.read_csv('data7/csv/y_test.csv', index_col=0))
 
 
-from model_rfr import train_custom_model
-reg = train_custom_model(X_train, y_train)
+from model_rfr import train_custom_model, train_nnrf
+reg = train_nnrf(X_train, y_train)
 
 
 # dt_reg = DecisionTreeRegressor(random_state=0, criterion='friedman_mse', ccp_alpha=0.1)
@@ -47,7 +47,7 @@ y_pred = reg.predict(X_test)
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 #%%
-np.save('pred/pred_rfr', y_pred)
+np.save('pred/pred_nnrf', y_pred)
 
 
 # feature_importance = pd.Series(reg.feature_importances_, index= X_train.columns)

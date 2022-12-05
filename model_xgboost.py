@@ -30,6 +30,11 @@ X_test = pd.read_csv('data8/csv/X_test.csv', index_col=0)
 y_train = pd.read_csv('data8/csv/y_train.csv', index_col=0)
 y_test = pd.read_csv('data8/csv/y_test.csv', index_col=0)
 
+#%%
+
+X_train
+#%%
+
 
 dtrain = xgb.DMatrix(X_train, label=y_train)
 dtest = xgb.DMatrix(X_test)

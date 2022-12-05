@@ -61,8 +61,51 @@ def preprocess_text_2(X, train = True, vectorizer_text = None):
     X = pd.concat([X, X_text], axis = 1)
     return X, vectorizer_text
 
+
+def create_vectorizer_text():
+    train_data = pd.read_csv("train.csv")
+    train_data = train_data.drop(columns='retweets_count')
+    evaluation_data = pd.read_csv("evaluation.csv")
+    X = pd.concat([train_data, evaluation_data], axis = 0)
+
+    text_list = X['text'].apply(lambda x : x.split(' '))
+    vectorizer_text = Word2Vec(vector_size=50, window=3, min_count=1, workers=-1)
+    vectorizer_text.build_vocab(text_list)
+    vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 20)
+
+    return vectorizer_text
+
+def preprocess_text(X, vectorizer_text):
+    
+    text = X['text'].apply(lambda x : x.split(' '))
+    X_pretext = []
+    for tweet in text:
+        moy = np.array([0.0 for i in range(50)])
+        for word in tweet:
+            moy+=vectorizer_text.wv[word]
+        X_pretext.append(moy/len(tweet))
+    X_clean = []
+    for ligne in X_pretext:
+        X_clean.append(list(ligne)) 
+    columns = [str(i) for i in range(len(X_clean[0]))]
+    df_clean = pd.DataFrame(columns=columns, index=X.index)
+    for i, j in enumerate(X.index):
+        df_clean.loc[j] = X_clean[i]
+    
+    X = pd.concat([X, df_clean], axis = 1)
+
+    return X_pretext
+
+#%%
+
+vectorizer_text = create_vectorizer_text()
+X_pretext = preprocess_text(X_train, vectorizer_text)
+
+
 # X_train_preprocess, vectorizer_text = preprocess_text_2(X_train,train=True)
 # X_train_preprocess
 
 # X_test_preprocess, vectorizer_text = preprocess_text_2(X_test, train=False, vectorizer_text= vectorizer_text)
 # X_test_preprocess
+
+# %%

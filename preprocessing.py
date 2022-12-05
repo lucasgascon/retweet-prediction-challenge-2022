@@ -7,8 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime
 from sklearn.pipeline import make_pipeline
-from nlp import preprocess_text, preprocess_text_2
-from test_nlp import *
+from nlp import create_vectorizer_text, preprocess_text
 
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -73,15 +72,12 @@ def other_variables(X_train):
     mentions_count = mentions.apply(lambda x : len(x))
     X_train['mention_count'] = mentions_count
     
-    
-    
     return X_train
 
-def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None, preprocess_text = preprocess_text):
+def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X["len_text"] = X["text"].apply(lambda x: len(x))
 
-
-    X, vectorizer_text = create_train_df(X, train, vectorizer_text = vectorizer_text, modele = 'base', function = preprocess_text)
+    X = preprocess_text(X, vectorizer_text)
 
     X = preprocess_time(X)
     X, vectorizer_hashtags = preprocess_hashtags(X, train, vectorizer_hashtags)
@@ -105,15 +101,17 @@ def pipeline(X, train, std_clf = None):
     # return X_transformed, std_clf
     return X, std_clf
 
-def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None, preprocess_text = preprocess_text_6):
-    X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags, preprocess_text= preprocess_text)
+def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
+    X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
     X = select_columns(X)
     X_transformed, std_clf = pipeline(X, train, std_clf)
     return X_transformed, vectorizer_text, vectorizer_hashtags, std_clf
 
-def load_train_data(test = True, preprocess_text = preprocess_text_6):
+def load_train_data(test = True):
     # Load the training data
     train_data = pd.read_csv("train.csv")
+
+    # vectorizer_text = create_vectorizer_text()
 
     if test == True:
         # Here we split our training data into training and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
@@ -126,21 +124,22 @@ def load_train_data(test = True, preprocess_text = preprocess_text_6):
         X_train = train_data.drop(['retweets_count'], axis=1)
     
     # We preprocess the data
-    X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True, preprocess_text = preprocess_text)
+    X_train, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(X_train, train = True)
     if test == True: 
-        X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(X_test, 
-                    train = False, 
-                    vectorizer_text = vectorizer_text, 
-                    vectorizer_hashtags = vectorizer_hashtags, 
-                    std_clf = std_clf,
-                    preprocess_text = preprocess_text, 
-                    )
+        X_test, vectorizer_text, vectorizer_hashtags, std_clf  = preprocessing(
+                                                                        X_test, 
+                                                                        train = False, 
+                                                                        vectorizer_text = vectorizer_text,
+                                                                        vectorizer_hashtags = vectorizer_hashtags, 
+                                                                        std_clf = std_clf,
+                                                                        )
         return X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf
 
     else: return X_train, y_train, vectorizer_text, vectorizer_hashtags, std_clf
 #%%
-def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf, preprocess_text = preprocess_text_6):
+def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
     eval_data = pd.read_csv("evaluation.csv")
+    # vectorizer_text = create_vectorizer_text()
     X_eval, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(eval_data, 
                         train=False, 
                         vectorizer_text= vectorizer_text,
@@ -169,20 +168,18 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf, preproce
 # np.save('data/' + dir + '/X_val', X_train)
 
 
-preprocess_text = preprocess_text_6
+vectorizer_text = create_vectorizer_text()
 
-# X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True, preprocess_text = preprocess_text)
+X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
 
-# X_train.head()
 
-X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False, preprocess_text = preprocess_text)
+X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
 
-#%%
+
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
     vectorizer_hashtags=vectorizer_hashtags,
     std_clf = std_clf,
-    preprocess_text = preprocess_text,
     )
 
 os.makedirs('data8/csv', exist_ok=True)  
@@ -194,10 +191,4 @@ y_train.to_csv('data8/csv/y_train.csv')
 y_test.to_csv('data8/csv/y_test.csv')
 y.to_csv('data8/csv/y.csv')
 
-
-
-
-
-
-
-# %%
+#%%

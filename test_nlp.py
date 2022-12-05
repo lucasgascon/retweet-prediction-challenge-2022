@@ -190,17 +190,20 @@ def preprocess_text_5(X, train=True, vectorizer_text = None):
     # print(X)
     return X_pretext, vectorizer_text
         
+train_data = pd.read_csv("train.csv")
+train_data.drop(columns='retweets_count')
+evaluation_data = pd.read_csv("evaluation.csv")
 
 def preprocess_text_6(X, train = True, vectorizer_text = None):
     
     text_list = X['text'].apply(lambda x : x.split(' '))
-    vectorizer_text = Word2Vec(vector_size=150, window=3, min_count=1, workers=-1)
+    vectorizer_text = Word2Vec(vector_size=50, window=3, min_count=1, workers=-1)
     vectorizer_text.build_vocab(text_list)
     vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 20)
     text = X['text'].apply(lambda x : x.split(' '))
     X_pretext = []
     for tweet in text:
-        moy = np.array([0.0 for i in range(150)])
+        moy = np.array([0.0 for i in range(50)])
         for word in tweet:
             moy+=vectorizer_text.wv[word]
         X_pretext.append(moy/len(tweet))
