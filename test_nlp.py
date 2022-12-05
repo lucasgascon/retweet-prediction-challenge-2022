@@ -110,7 +110,7 @@ def preprocess_text_3(X, train = True, vectorizer_text = None):
         flaubert, log = FlaubertModel.from_pretrained(modelname, output_loading_info=True)
         flaubert_tokenizer = FlaubertTokenizer.from_pretrained(modelname, do_lowercase=False)
         # do_lowercase=False if using cased models, True if using uncased ones
-        text = X_train['text']
+        text = X['text']
         #print(text)
         text_vect = []
         i = 0
@@ -125,7 +125,7 @@ def preprocess_text_3(X, train = True, vectorizer_text = None):
         # vectorize_array = np.reshape(np.array(flatten_df.values), (-1, 100))
         # X_text = pd.DataFrame(vectorize_array, index = X.index)
     else : 
-        text = X_train['text']
+        text = X['text']
         #print(text)
         text_vect = []
         i = 0
@@ -147,7 +147,7 @@ def preprocess_text_4(X, train = True, vectorizer_text = None, modele = 'base'):
         nlp_spacy = sp.load("fr_core_news_sm")
     else:
         nlp_spacy = spacy_sentence_bert.load_model('stsb_roberta_large')
-    text = X_train['text']
+    text = X['text']
     print(text)
     text_vect = []
     i = 0
@@ -171,7 +171,7 @@ def preprocess_text_5(X, train=True, vectorizer_text = None):
     
         
     model = SentenceTransformer('all-MiniLM-L6-v2')
-    text = X_train['text']
+    text = X['text']
     print(text)
     text_vect = []
     i = 0
