@@ -12,17 +12,19 @@ seed = 12
 # X = np.load('data/' + dir + '/X.npy')
 # y = np.load('data/' + dir + '/y.npy')
 
-X = pd.read_csv('data/csv/X', index_col = None)
-y = pd.read_csv('data/csv/y',index_col=0)
+X = pd.read_csv('data/csv/X.csv')
+X.head()
+#%%
+y = pd.read_csv('data/csv/y.csv',index_col=0)
 
 df = X.copy()
 df['y'] = y
 df.head()
 #%%
 
-
-for i in range(99):
-    df = df.drop([i], axis =1)
+df = df.drop(['Unnamed: 0'], axis =1)
+for i in range(100):
+    df = df.drop([str(i)], axis =1)
 
 df.head()
 
@@ -34,4 +36,7 @@ for col in df.columns:
         plt.scatter(df[col], df['y'])
         plt.show()
 
+# %%
+
+df.columns
 # %%

@@ -2,15 +2,20 @@
 
 import torch.nn as nn
 import torch
-from torch.utils.data import DataLoader
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error
 import numpy as np
 import time
 import pandas as pd
-
-import datetime 
+import torch.nn as nn
+from numpy import array
+from torch.utils.data import TensorDataset
+import random
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
+
+import datetime
+
 
 # this ensures that the current MacOS version is at least 12.3+
 print(torch.backends.mps.is_available())
@@ -23,27 +28,19 @@ else:
 print('device : ', device)
 device = 'cpu'
 
-
-# Load dataset
-# dir = 'array'
-# X_train = np.load('data/' + dir + '/X_train.npy')
-# X_test = np.load('data/' + dir + '/X_test.npy')
-# y_train = np.load('data/' + dir + '/y_train.npy')
-# y_test = np.load('data/' + dir + '/y_test.npy')
-# print(X_train.shape)
-
-X_train = pd.read_csv('data/csv/X_train.csv', index_col=0).to_numpy()
-X_test = pd.read_csv('data/csv/X_test.csv', index_col=0).to_numpy()
+X_train = pd.read_csv('data/csv/X_train.csv').to_numpy()
+X_test = pd.read_csv('data/csv/X_test.csv').to_numpy()
 y_train = pd.read_csv('data/csv/y_train.csv', index_col=0).to_numpy()
 y_test = pd.read_csv('data/csv/y_test.csv', index_col=0).to_numpy()
-#%%
+
+
 
 class Dataset(torch.utils.data.Dataset):
   '''
   Prepare the dataset for regression
   '''
 
-  def __init__(self, X, y, scale_data=True):
+  def __init__(self, X, y, scale_data=False):
     if not torch.is_tensor(X) and not torch.is_tensor(y):
       # Apply scaling if necessary
       if scale_data:
@@ -58,68 +55,100 @@ class Dataset(torch.utils.data.Dataset):
       return self.X[i], self.y[i]
 
 
-# Linear Neural Network class
-class MLP(nn.Module):
-    """[Linear Neural Network Model Generator]
+class GenModel(nn.Module):
+    """[LSTM Model Generator]
 
     """
-    def __init__(self, input_size, num_hidden, hidden_dim, dropout):
+    def __init__(self, hidden_dim,seq_length, n_layers,hidden_layers,
+                 bidirectional, dropout=0.5):
         """[summary]
 
         Args:
-            input_size ([int]): [number of input features]
-            num_hidden ([int]): [number of hidden layers]
-            hidden_dim ([int]): [hidden layer dimension]
-            dropout (float): [dropout rate].
+            hidden_dim ([List]): [list of integers for dimensions of hidden layers]
+            seq_length ([int]): [window size of 1 reading]
+            n_layers ([int]): [description]
+            hidden_layers ([int]): [description]
+            bidirectional ([boolean]): [boolean of whether the bidirectional ]
+            dropout (float, optional): [description]. Defaults to 0.5.
         """
-        super(MLP, self).__init__()
+        super().__init__()
+        self.rnn = nn.LSTM(856, 
+                           hidden_dim[0], 
+                           num_layers=n_layers, #set to two: makes our LSTM 'deep'
+                           bidirectional=bidirectional, #bidirectional or not
+                           dropout=dropout,batch_first=True) #we add dropout for regularization
+        
+        if bidirectional:
+            self.D=2
+        else:
+            self.D=1
+        self.n_layers=n_layers
+        self.hidden_dim=hidden_dim[0]
+        self.nonlinearity = nn.ReLU() 
         self.hidden_layers = nn.ModuleList([])
-        self.hidden_layers.append(nn.Linear(input_size, hidden_dim))
-        for i in range(num_hidden - 1):
-            self.hidden_layers.append(nn.Linear(hidden_dim, hidden_dim))
-        self.dropout = nn.Dropout(dropout)
-        self.output_projection = nn.Linear(hidden_dim, 1)
-        self.nonlinearity = nn.ReLU()
+        self.seq_length=seq_length
+        self.dropout=nn.Dropout(dropout)
+        assert(len(hidden_dim)>0)
+        assert(len(hidden_dim)==1+hidden_layers)
 
-    def forward(self, x):
+        i=0
+        if hidden_layers>0:
+            self.hidden_layers.append(nn.Linear(hidden_dim[i]*self.D*self.seq_length, hidden_dim[i+1]))
+            for i in range(hidden_layers-1):
+                self.hidden_layers.append(nn.Linear(hidden_dim[i+1], hidden_dim[i+2]))
+            self.output_projection = nn.Linear(hidden_dim[i+1], 1)
+        else:
+            self.output_projection = nn.Linear(hidden_dim[i]*self.D*self.seq_length, 1)
+    
+        
+        
+    def forward(self, x,hidden):
         """[Forward for Neural network]
 
         Args:
             x ([Tensor]): [input tensor for raw values]
+            hidden ([Tensor]): [hidden state values for lstm model]
+
         Returns:
             [Tensor]: [output results from model]
         """
+        
+        batch_size= x.size(0)
+
+        val, hidden = self.rnn(x,hidden) #feed to rnn
+        
+        #unpack sequence
+        val = val.contiguous().view( batch_size,-1)
         for hidden_layer in self.hidden_layers:
-            x = hidden_layer(x)
-            x = self.dropout(x)
-            x = self.nonlinearity(x)
-        out = self.output_projection(x)
-        return out
+              val = hidden_layer(val)
+              val = self.dropout(val)
+              val = self.nonlinearity(val) 
+        out = self.output_projection(val)
 
-class MLP2(nn.Module):
-  '''
-    Multilayer Perceptron for regression.
-  '''
-  def __init__(self):
-    super().__init__()
-    self.layers = nn.Sequential(
-      nn.Linear(50, 64),
-      nn.ReLU(),
-      nn.Linear(64, 32),
-      nn.ReLU(),
-      nn.Linear(32, 1),
-      nn.ReLU(),
-    )
+        return out,hidden
+    
+    
+    def init_hidden(self, batch_size):
+        """[summary]
 
+        Args:
+            batch_size ([int]): [size of batch that you are inputting into the model]
 
-  def forward(self, x):
-    '''
-      Forward pass
-    '''
-    return self.layers(x)
+        Returns:
+            [Tensor]: [Returns a tensor with the dimensions equals to the dimensions of the model's
+            hidden state with values 0]
+        """
+        weight = next(self.parameters()).data
+        hidden = (weight.new(self.n_layers*self.D, batch_size, self.hidden_dim).zero_().to(device),
+                        weight.new(self.n_layers*self.D, batch_size, self.hidden_dim).zero_().to(device))
+        
+        return hidden
 
 
-
+batch_size = 10
+model = GenModel([512], 30,2, 0, True,0.5)
+model = model.to(device)
+h = model.init_hidden(batch_size)
 
 # Prepare dataset
 train_dataset = Dataset(X_train, y_train, scale_data=False)
@@ -128,21 +157,12 @@ trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=10, shuffle=
 valid_dataset = Dataset(X_test, y_test, scale_data=False)
 validloader = torch.utils.data.DataLoader(valid_dataset, batch_size=10, shuffle=True, num_workers=0)
 
-
-# mlp = MLP().to(device)
-mlp = MLP(117, 3, 256, 0.5).to(device)
-
 # Define the loss function and optimizer
 loss_function = nn.MSELoss(reduction="mean")
-optimizer = torch.optim.Adam(mlp.parameters(), lr=1e-4)
-
-now = datetime.datetime.now()
-writer_dir = "./logs/" + now.strftime('%m.%d/%H.%M') + '/'
-
-tensorboard_writer = SummaryWriter(writer_dir)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 # Run the training loop
-for epoch in range(0, 10): # 5 epochs at maximum
+for epoch in range(0, 50): # 5 epochs at maximum
     start_time = time.time()
 
     epoch_train_losses = []
@@ -159,6 +179,8 @@ for epoch in range(0, 10): # 5 epochs at maximum
 
     # Iterate over the DataLoader for training data
     for i, data in enumerate(trainloader, 0):
+
+        h = model.init_hidden(batch_size)
         
         # Get and prepare inputs
         inputs, targets = data
@@ -172,8 +194,8 @@ for epoch in range(0, 10): # 5 epochs at maximum
         optimizer.zero_grad()
         
         # Perform forward pass
-        mlp = mlp.to(device)
-        outputs = mlp(inputs)
+        model = model.to(device)
+        outputs = model(inputs)
 
         outputs_ = outputs.detach().cpu().numpy()
         y_train_pred.extend(outputs_)  # save prediction
@@ -206,8 +228,8 @@ for epoch in range(0, 10): # 5 epochs at maximum
         inputs = inputs.to(device)
         targets = targets.to(device)
 
-        mlp = mlp.to(device)
-        outputs = mlp(inputs)
+        model = model.to(device)
+        outputs = model(inputs)
 
         outputs_ = outputs.detach().cpu().numpy()
         y_valid_pred.extend(outputs_)  # save prediction
@@ -220,17 +242,17 @@ for epoch in range(0, 10): # 5 epochs at maximum
         epoch_valid_losses.append(loss.detach().cpu())
       
     
-    train_loss = sum(epoch_train_losses) / len(epoch_train_losses)
-    valid_loss = sum(epoch_valid_losses) / len(epoch_valid_losses)
+    # train_loss = sum(epoch_train_losses) / len(epoch_train_losses)
+    # valid_loss = sum(epoch_valid_losses) / len(epoch_valid_losses)
 
-    tensorboard_writer.add_scalar(
-        'Training epoch loss',
-        train_loss,
-        epoch)
-    tensorboard_writer.add_scalar(
-        'Valid epoch loss',
-        valid_loss,
-        epoch)
+    # tensorboard_writer.add_scalar(
+    #     'Training epoch loss',
+    #     train_loss,
+    #     epoch)
+    # tensorboard_writer.add_scalar(
+    #     'Valid epoch loss',
+    #     valid_loss,
+    #     epoch)
 
     elapsed_time = time.time() - start_time
     print("took {} seconds for fitting".format(elapsed_time))
@@ -238,9 +260,11 @@ for epoch in range(0, 10): # 5 epochs at maximum
 # Process is complete.
 print('Training process has finished.')
 
+
+
 #%%
 
-y_pred = mlp(torch.from_numpy(X_test).float()).detach().numpy()
+y_pred = model(torch.from_numpy(X_test).float()).detach().numpy()
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 # %%

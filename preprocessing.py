@@ -178,22 +178,24 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 
 X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
-X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
-X_val = load_validation_data(
-    vectorizer_text=vectorizer_text,
-    vectorizer_hashtags=vectorizer_hashtags,
-    std_clf = std_clf,
-    )
 
-#%%
-os.makedirs('data', exist_ok=True)  
-X_train.to_csv('data/csv/X_train.csv')
-X_test.to_csv('data/csv/X_test.csv')
-X_val.to_csv('data/csv/X_val.csv')
-X.to_csv('data/csv/X.csv')
-y_train.to_csv('data/csv/y_train.csv')
-y_test.to_csv('data/csv/y_test.csv')
-y.to_csv('data/csv/y.csv')
+X_train.head()
+
+# X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
+# X_val = load_validation_data(
+#     vectorizer_text=vectorizer_text,
+#     vectorizer_hashtags=vectorizer_hashtags,
+#     std_clf = std_clf,
+#     )
+
+# os.makedirs('data', exist_ok=True)  
+# X_train.to_csv('data/csv/X_train.csv')
+# X_test.to_csv('data/csv/X_test.csv')
+# X_val.to_csv('data/csv/X_val.csv')
+# X.to_csv('data/csv/X.csv')
+# y_train.to_csv('data/csv/y_train.csv')
+# y_test.to_csv('data/csv/y_test.csv')
+# y.to_csv('data/csv/y.csv')
 
 
 
