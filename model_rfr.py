@@ -10,22 +10,22 @@ import os
 from utils import load_data
 
 
-# MAE error: 6.20
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+# MAE error: 6.09
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
-# MAE error: 7.14
+# MAE error: 6.96
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
 
-# MAE error: 
+# MAE error: 7.46
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
 
 def custom_model(X_train, y_train, X_test, save= False):
     start_time = time.time()
 
     rfc = RandomForestClassifier(
-        n_estimators = 200,
+        n_estimators = 300,
         criterion = 'entropy',
-        max_depth = 6,
+        max_depth = 10,
         n_jobs = -1,
         random_state = 42,
         verbose = 5,
@@ -41,9 +41,9 @@ def custom_model(X_train, y_train, X_test, save= False):
         pickle.dump(rfc, open(filename, 'wb'))
 
     reg = LGBMRegressor(
-        boosting_type='rf',
-        learning_rate = 0.1,
-        n_estimators = 200,
+        boosting_type='gbdt',
+        learning_rate = 0.037,
+        n_estimators = 300,
         n_jobs = -1,
         random_state = 42, 
         verbose = 5,
@@ -65,8 +65,8 @@ def custom_model(X_train, y_train, X_test, save= False):
     return y_pred
 
 
-# MAE error: 
-# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+# MAE error:
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
 # MAE error: 
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
@@ -76,10 +76,16 @@ def custom_model(X_train, y_train, X_test, save= False):
 
 def rfr(X_train, y_train, X_test, save= False):
     start_time = time.time()
-    
 
-    reg = RandomForestRegressor(n_jobs = 6)
-    # reg = LGBMRegressor(n_jobs = 6)
+    reg = RandomForestRegressor(
+        n_estimators = 500,
+        criterion = 'squared_error',
+        max_depth = 18,
+        max_features = 'sqrt',
+        n_jobs = -1,
+        random_state = 42,
+        verbose = 5,
+        )
     
     reg.fit(X_train, y_train)
     elapsed_time = time.time() - start_time
@@ -95,9 +101,8 @@ def rfr(X_train, y_train, X_test, save= False):
 
     return y_pred
 
-
-# y_pred = rfr(X_train, y_train, X_test, save = False)
-y_pred = custom_model(X_train, y_train, X_test, save = False)
+y_pred = rfr(X_train, y_train, X_test, save = False)
+# y_pred = custom_model(X_train, y_train, X_test, save = False)
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
 
