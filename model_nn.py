@@ -63,45 +63,8 @@ class Dataset(torch.utils.data.Dataset):
       return self.X[i], self.y[i]
 
 
-# Linear Neural Network class
+#
 class MLP(nn.Module):
-    """[Linear Neural Network Model Generator]
-
-    """
-    def __init__(self, input_size, num_hidden, hidden_dim, dropout):
-        """[summary]
-
-        Args:
-            input_size ([int]): [number of input features]
-            num_hidden ([int]): [number of hidden layers]
-            hidden_dim ([int]): [hidden layer dimension]
-            dropout (float): [dropout rate].
-        """
-        super(MLP, self).__init__()
-        self.hidden_layers = nn.ModuleList([])
-        self.hidden_layers.append(nn.Linear(input_size, hidden_dim))
-        for i in range(num_hidden - 1):
-            self.hidden_layers.append(nn.Linear(hidden_dim, hidden_dim))
-        self.dropout = nn.Dropout(dropout)
-        self.output_projection = nn.Linear(hidden_dim, 1)
-        self.nonlinearity = nn.ReLU()
-
-    def forward(self, x):
-        """[Forward for Neural network]
-
-        Args:
-            x ([Tensor]): [input tensor for raw values]
-        Returns:
-            [Tensor]: [output results from model]
-        """
-        for hidden_layer in self.hidden_layers:
-            x = hidden_layer(x)
-            x = self.dropout(x)
-            x = self.nonlinearity(x)
-        out = self.output_projection(x)
-        return out
-
-class MLP2(nn.Module):
   '''
     Multilayer Perceptron for regression.
   '''

@@ -69,20 +69,20 @@ def create_vectorizer_text():
     X = pd.concat([train_data, evaluation_data], axis = 0)
 
     text_list = X['text'].apply(lambda x : x.split(' '))
-    vectorizer_text = Word2Vec(vector_size=50, window=3, min_count=1, workers=-1)
-    vectorizer_text.build_vocab(text_list)
-    vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 20)
+    vectorizer_text1 = Word2Vec(vector_size=150, window=3, min_count=1, workers=-1)
+    vectorizer_text1.build_vocab(text_list)
+    vectorizer_text1.train(text_list, total_examples = vectorizer_text1.corpus_count, epochs = 20)
 
-    return vectorizer_text
+    return vectorizer_text1
 
-def preprocess_text(X, vectorizer_text):
+def preprocess_text(X, vectorizer_text1):
     
     text = X['text'].apply(lambda x : x.split(' '))
     X_pretext = []
     for tweet in text:
-        moy = np.array([0.0 for i in range(50)])
+        moy = np.array([0.0 for i in range(150)])
         for word in tweet:
-            moy+=vectorizer_text.wv[word]
+            moy+=vectorizer_text1.wv[word]
         X_pretext.append(moy/len(tweet))
     X_clean = []
     for ligne in X_pretext:
@@ -94,12 +94,12 @@ def preprocess_text(X, vectorizer_text):
     
     X = pd.concat([X, df_clean], axis = 1)
 
-    return X_pretext
+    return X
 
-#%%
 
-vectorizer_text = create_vectorizer_text()
-X_pretext = preprocess_text(X_train, vectorizer_text)
+
+vectorizer_text1 = create_vectorizer_text()
+X = preprocess_text(X_train, vectorizer_text1)
 
 
 # X_train_preprocess, vectorizer_text = preprocess_text_2(X_train,train=True)
@@ -108,4 +108,6 @@ X_pretext = preprocess_text(X_train, vectorizer_text)
 # X_test_preprocess, vectorizer_text = preprocess_text_2(X_test, train=False, vectorizer_text= vectorizer_text)
 # X_test_preprocess
 
+# %%
+X
 # %%
