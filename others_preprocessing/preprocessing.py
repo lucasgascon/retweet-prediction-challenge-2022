@@ -2,15 +2,13 @@
 
 import pandas as pd
 from verstack.stratified_continuous_split import scsplit # pip install verstack
-from sklearn.preprocessing import StandardScaler
 from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime
-from sklearn.pipeline import make_pipeline
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from utils import save_data
-import numpy as np
-import os
+
+seed = 12
 
 def preprocess_text(X, train = True, vectorizer_text = None):
     if train == True:
@@ -30,12 +28,19 @@ def preprocess_time(X):
     X['am_pm'] = X['am_pm'].apply(lambda x : am_pm[x])
     return X
 
-def preprocess_hashtags(X):
+def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
     hashtags = X['hashtags'].apply(lambda x : x[2:-2].split(','))
     hashtags.apply(lambda x : x.remove('') if '' in x else x)
     hashtags_count = hashtags.apply(lambda x : len(x))
     X['hashtag_count'] = hashtags_count
-    return X
+    hashtags_text = hashtags.apply(lambda x : ' '.join(x))
+    if train : 
+        vectorizer_hashtags = TfidfVectorizer(max_features=10, stop_words=stopwords.words('french'))
+        hashtags_text = pd.DataFrame(vectorizer_hashtags.fit_transform(hashtags_text).toarray(), index = hashtags.index)
+    else : 
+        hashtags_text = pd.DataFrame(vectorizer_hashtags.transform(hashtags_text).toarray(), index = hashtags.index)
+    # X = pd.concat([X, hashtags_text], axis = 1)
+    return X, vectorizer_hashtags
 
 def preprocess_urls(X):
     urls = X['urls'].apply(lambda x : x[2:-2].split(','))
@@ -51,34 +56,25 @@ def add_sentiments(X):
     X['polarity_scores_compound'] = X['text'].apply(lambda text : sia.polarity_scores(text)['compound'])
     return X
 
-def add_variables(X, train, vectorizer_text = None):
+def add_variables(X, train, vectorizer_text = None, vectorizer_hashtag = None):
     X["len_text"] = X["text"].apply(lambda x: len(x))
 
     X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
     X = preprocess_time(X)
-    X = preprocess_hashtags(X)
+    X, vectorizer_hashtag = preprocess_hashtags(X, train, vectorizer_hashtag)
     X = preprocess_urls(X)
     X = add_sentiments(X)
-    return X, vectorizer_text
+    return X, vectorizer_text, vectorizer_hashtag
 
 def select_columns(X):
     X = X.drop(['text','mentions','urls','hashtags', 'timestamp','TweetID'], axis = 1)
     return X
 
-def pipeline(X, train, std_clf = None):
-    if train:
-        std_clf = make_pipeline(StandardScaler())
-        std_clf.fit(X)
-        X_transformed = std_clf.transform(X)
-    else:
-        X_transformed = std_clf.transform(X)
-    return X_transformed, std_clf
 
-def preprocessing(X, train, vectorizer_text = None, std_clf = None):
-    X, vectorizer_text = add_variables(X, train, vectorizer_text)
+def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtag = None):
+    X, vectorizer_text, vectorizer_hashtag = add_variables(X, train, vectorizer_text, vectorizer_hashtag)
     X = select_columns(X)
-    X_transformed, std_clf = pipeline(X, train, std_clf)
-    return X_transformed, vectorizer_text, std_clf
+    return X, vectorizer_text, vectorizer_hashtag
 
 def load_train_data(test):
     # Load the training data
@@ -93,44 +89,32 @@ def load_train_data(test):
         X_train = train_data.drop(['retweets_count'], axis=1)
     
     # We preprocess the data
-    X_train, vectorizer_text, std_clf = preprocessing(X_train, train = True)
+    X_train, vectorizer_text, vectorizer_hashtag = preprocessing(X_train, train = True)
     if test == True: 
-        X_test, vectorizer_text, std_clf  = preprocessing(
+        X_test, vectorizer_text, vectorizer_hashtag = preprocessing(
                                 X_test, 
                                 train = False, 
                                 vectorizer_text = vectorizer_text,
-                                std_clf = std_clf,
+                                vectorizer_hashtag = vectorizer_hashtag,
                                 )
-        return X_train, y_train, X_test, y_test, vectorizer_text, std_clf
+        return X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtag
 
-    else: return X_train, y_train, vectorizer_text, std_clf
+    else: return X_train, y_train, vectorizer_text, vectorizer_hashtag
 
-def load_validation_data(vectorizer_text, std_clf):
+def load_validation_data(vectorizer_text, vectorizer_hashtag):
     eval_data = pd.read_csv("evaluation.csv")
-    X_eval, vectorizer_text, std_clf = preprocessing(eval_data, 
+    X_eval, vectorizer_text, vectorizer_hashtag = preprocessing(eval_data, 
                         train=False, 
                         vectorizer_text= vectorizer_text,
-                        std_clf = std_clf,
+                        vectorizer_hashtag = vectorizer_hashtag,
                         )
     return X_eval
 
-X_train, y_train, X_test, y_test, vectorizer_text, std_clf = load_train_data(test=True)
-X, y, vectorizer_text, std_clf = load_train_data (test=False)
+X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtag = load_train_data(test=True)
+X, y, vectorizer_text, vectorizer_hashtag = load_train_data (test=False)
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
-    std_clf = std_clf,
+    vectorizer_hashtag=vectorizer_hashtag,
     )
-
-dir = 'preprocessing3'
-
-os.makedirs('data/' + dir, exist_ok=True)
-np.save('data/' + dir + '/X_train', X_train)
-np.save('data/' + dir + '/X_test', X_test)
-np.save('data/' + dir + '/y_train', y_train.to_numpy())
-np.save('data/' + dir + '/y_test', y_test.to_numpy())
-np.save('data/' + dir + '/X', X)
-np.save('data/' + dir + '/y', y.to_numpy())
-np.save('data/' + dir + '/X_val', X_train)
-
-
+save_data('preprocessing', X, y, X_train, y_train, X_test, y_test, X_val)
 # %%

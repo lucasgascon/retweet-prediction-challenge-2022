@@ -5,12 +5,16 @@ import pickle
 from sklearn.metrics import mean_absolute_error
 from lightgbm import LGBMRegressor
 from utils import load_data, load_data_numpy
+import numpy as np
 
 # MAE error: 6.81
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing3')
 
+# MAE error:
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing4')
+
 # MAE error: 6.49
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
 
 # MAE error: 6.49
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
@@ -36,7 +40,9 @@ def custom_model(X_train, y_train, X_test, save= False):
         verbose = 5,
         )
 
-    y_train_2 = y_train['retweets_count'].apply(lambda x : 1 if (x>0) else 0)
+    # y_train_2 = y_train['retweets_count'].apply(lambda x : 1 if (x>0) else 0)
+    y_train_2 = np.array([1 if x>0 else 0 for x in y_train])
+
     rfc.fit(X_train, y_train_2)
     classifier_test = rfc.predict(X_test)
     
@@ -111,13 +117,12 @@ def rfr(X_train, y_train, X_test, save= False):
     
     y_pred = reg.predict(X_test)
     y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
-    
 
     return y_pred
 
-y_pred = rfr(X_train, y_train, X_test, save = False)
+# y_pred = rfr(X_train, y_train, X_test, save = False)
 # y_pred = custom_model(X_train, y_train, X_test, save = False)
-print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+# print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
 
 

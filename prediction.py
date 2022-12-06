@@ -3,7 +3,7 @@
 import csv
 import pandas as pd
 import os
-from utils import load_data
+from utils import load_data, load_data_numpy
 from model_rfr import custom_model, rfr
 
 ###################################
@@ -11,8 +11,8 @@ from model_rfr import custom_model, rfr
 ###################################
 eval_data = pd.read_csv("evaluation.csv")
 
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data')
-# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv')
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data')
+X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
 
 y_pred = custom_model(X, y, X_val, save = False)
 # y_pred = rfr(X, y, X_val, save = False)

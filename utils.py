@@ -32,3 +32,13 @@ def save_data(name_folder, X, y, X_train, y_train, X_test, y_test, X_val):
     y_train.to_csv('data/' + name_folder +'/y_train.csv')
     y_test.to_csv('data/' + name_folder +'/y_test.csv')
     y.to_csv('data/' + name_folder +'/y.csv')
+
+def save_data_numpy(name_folder, X, y, X_train, y_train, X_test, y_test, X_val):
+    os.makedirs('data/' + name_folder, exist_ok=True)
+    np.save('data/' + name_folder + '/X_train', X_train)
+    np.save('data/' + name_folder + '/X_test', X_test)
+    np.save('data/' + name_folder + '/y_train', y_train.to_numpy())
+    np.save('data/' + name_folder + '/y_test', y_test.to_numpy())
+    np.save('data/' + name_folder + '/X', X)
+    np.save('data/' + name_folder + '/y', y.to_numpy())
+    np.save('data/' + name_folder + '/X_val', X_val)
