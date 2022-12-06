@@ -2,7 +2,7 @@
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from verstack.stratified_continuous_split import scsplit # pip install verstack
+# from verstack.stratified_continuous_split import scsplit # pip install verstack
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from vaderSentiment_fr.vaderSentiment import SentimentIntensityAnalyzer
@@ -100,15 +100,11 @@ def other_variables(X_train):
 
     mentions = X_train['hashtags'].apply(lambda x : x[2:-2].split(','))
     mentions.apply(lambda x : x.remove('') if '' in x else x)
-    mentions_count = mentions.apply(lambda x : hashtagvalue(len_text_value(len(x))))
+    mentions_count = mentions.apply(lambda x : hashtagvalue(len(x)))
     X_train['mention_count'] = mentions_count
     
-    X_train["len_text"] = X_train["text"].apply(lambda x: len(x))
+    X_train["len_text"] = X_train["text"].apply(lambda x: len_text_value(len(x)))
     
-    # approx length of tweets = sum of all h/e/m/url
-    X_train["tlen"] = X_train["len_text"] + X_train["hashtag_count"] + X_train["mention_count"] + X_train[
-        "url_count"]
-
     return X_train
 
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
@@ -153,8 +149,8 @@ def load_train_data(test = True):
         # Here we split our training data into training and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
         # scsplit method is used in order to split our regression data in a stratisfied way and keep a similar distribution of retweet counts between the two sets
         
-        # X_train, X_test, y_train, y_test = train_test_split(train_data, train_data['retweets_count'], test_size=0.3, random_state=42)
-        X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+        X_train, X_test, y_train, y_test = train_test_split(train_data, train_data['retweets_count'], test_size=0.3, random_state=42)
+        # X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
         X_test = X_test.drop(['retweets_count'], axis=1)
         X_train = X_train.drop(['retweets_count'], axis=1)
     else :
@@ -187,12 +183,12 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 #%%
 
-# dir = 'scale'
-# X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
-# np.save('data/' + dir + '/X_train', X_train)
-# np.save('data/' + dir + '/X_test', X_test)
-# np.save('data/' + dir + '/y_train', y_train.to_numpy())
-# np.save('data/' + dir + '/y_test', y_test.to_numpy())
+dir = 'scale'
+X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
+np.save('data/' + dir + '/X_train', X_train)
+np.save('data/' + dir + '/X_test', X_test)
+np.save('data/' + dir + '/y_train', y_train.to_numpy())
+np.save('data/' + dir + '/y_test', y_test.to_numpy())
 # X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
 # np.save('data/' + dir + '/X', X)
 # np.save('data/' + dir + '/y', y.to_numpy())
@@ -213,14 +209,16 @@ X_train
 #     std_clf = std_clf,
 #     )
 
-# os.makedirs('data', exist_ok=True)  
-# X_train.to_csv('data/csv/X_train.csv')
-# X_test.to_csv('data/csv/X_test.csv')
+
+#%%
+os.makedirs('data', exist_ok=True)  
+X_train.to_csv('data/csv/X_train.csv')
+X_test.to_csv('data/csv/X_test.csv')
 # X_val.to_csv('data/csv/X_val.csv')
-# X.to_csv('data/csv/X.csv')
-# y_train.to_csv('data/csv/y_train.csv')
-# y_test.to_csv('data/csv/y_test.csv')
-# y.to_csv('data/csv/y.csv')
+X.to_csv('data/csv/X.csv')
+y_train.to_csv('data/csv/y_train.csv')
+y_test.to_csv('data/csv/y_test.csv')
+y.to_csv('data/csv/y.csv')
 
 
 

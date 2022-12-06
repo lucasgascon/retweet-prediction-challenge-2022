@@ -3,8 +3,8 @@
 import pandas as pd
 from gensim.test.utils import common_texts
 from gensim.models import Word2Vec
-from verstack.stratified_continuous_split import scsplit
-
+# from verstack.stratified_continuous_split import scsplit
+from sklearn.model_selection import train_test_split
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 import numpy as np
@@ -13,7 +13,9 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 train_data = pd.read_csv("train.csv")
-X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+#X_train, X_test, y_train, y_test = scsplit(train_data, train_data['retweets_count'], stratify=train_data['retweets_count'], train_size=0.7, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(train_data, train_data['retweets_count'], test_size=0.3, random_state=42)
+
 text = X_train['text']
 
 
