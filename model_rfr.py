@@ -105,12 +105,14 @@ def rfr(X_train, y_train, X_test, save= False):
     
     y_pred = reg.predict(X_test)
     y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+    
 
     return y_pred
 
 y_pred = rfr(X_train, y_train, X_test, save = False)
 # y_pred = custom_model(X_train, y_train, X_test, save = False)
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+
 
 
 
