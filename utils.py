@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import numpy as np
 
 def load_data(name_folder):
     X_train = pd.read_csv('data/'+ name_folder +'/X_train.csv', index_col=0)
@@ -10,6 +11,17 @@ def load_data(name_folder):
     y = pd.read_csv('data/'+ name_folder +'/y.csv', index_col=0)
     X_val = pd.read_csv('data/'+ name_folder +'/X_val.csv', index_col=0)
     return X, y, X_train, y_train, X_test, y_test, X_val
+
+def load_data_numpy(name_folder):
+    X_train = np.load('data/'+ name_folder +'/X_train.npy')
+    X_test = np.load('data/'+ name_folder +'/X_test.npy')
+    y_train = np.load('data/'+ name_folder +'/y_train.npy')
+    y_test = np.load('data/'+ name_folder +'/y_test.npy')
+    X = np.load('data/'+ name_folder +'/X.npy')
+    y = np.load('data/'+ name_folder +'/y.npy')
+    X_val = np.load('data/'+ name_folder +'/X_val.npy')
+    return X, y, X_train, y_train, X_test, y_test, X_val
+
 
 def save_data(name_folder, X, y, X_train, y_train, X_test, y_test, X_val):
     os.makedirs('data/' + name_folder , exist_ok=True)  

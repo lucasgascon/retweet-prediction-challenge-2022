@@ -9,6 +9,8 @@ from sklearn.pipeline import make_pipeline
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from utils import save_data
+import numpy as np
+import os
 
 def preprocess_text(X, train = True, vectorizer_text = None):
     if train == True:
@@ -64,11 +66,20 @@ def select_columns(X):
     X = X.drop(['text','mentions','urls','hashtags', 'timestamp','TweetID'], axis = 1)
     return X
 
+def pipeline(X, train, std_clf = None):
+    if train:
+        std_clf = make_pipeline(StandardScaler())
+        std_clf.fit(X)
+        X_transformed = std_clf.transform(X)
+    else:
+        X_transformed = std_clf.transform(X)
+    return X_transformed, std_clf
 
-def preprocessing(X, train, vectorizer_text = None):
+def preprocessing(X, train, vectorizer_text = None, std_clf = None):
     X, vectorizer_text = add_variables(X, train, vectorizer_text)
     X = select_columns(X)
-    return X, vectorizer_text
+    X_transformed, std_clf = pipeline(X, train, std_clf)
+    return X_transformed, vectorizer_text, std_clf
 
 def load_train_data(test):
     # Load the training data
@@ -83,29 +94,44 @@ def load_train_data(test):
         X_train = train_data.drop(['retweets_count'], axis=1)
     
     # We preprocess the data
-    X_train, vectorizer_text= preprocessing(X_train, train = True)
+    X_train, vectorizer_text, std_clf = preprocessing(X_train, train = True)
     if test == True: 
-        X_test, vectorizer_text = preprocessing(
+        X_test, vectorizer_text, std_clf  = preprocessing(
                                 X_test, 
                                 train = False, 
                                 vectorizer_text = vectorizer_text,
+                                std_clf = std_clf,
                                 )
-        return X_train, y_train, X_test, y_test, vectorizer_text
+        return X_train, y_train, X_test, y_test, vectorizer_text, std_clf
 
-    else: return X_train, y_train, vectorizer_text
+    else: return X_train, y_train, vectorizer_text, std_clf
 
-def load_validation_data(vectorizer_text):
+def load_validation_data(vectorizer_text, std_clf):
     eval_data = pd.read_csv("evaluation.csv")
-    X_eval, vectorizer_text= preprocessing(eval_data, 
+    X_eval, vectorizer_text, std_clf = preprocessing(eval_data, 
                         train=False, 
                         vectorizer_text= vectorizer_text,
+                        std_clf = std_clf,
                         )
     return X_eval
 
-X_train, y_train, X_test, y_test, vectorizer_text = load_train_data(test=True)
-X, y, vectorizer_text = load_train_data (test=False)
+X_train, y_train, X_test, y_test, vectorizer_text, std_clf = load_train_data(test=True)
+X, y, vectorizer_text, std_clf = load_train_data (test=False)
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text,
+    std_clf = std_clf,
     )
-save_data('preprocessing', X, y, X_train, y_train, X_test, y_test, X_val)
+
+dir = 'preprocessing3'
+
+os.makedirs('data/' + dir, exist_ok=True)
+np.save('data/' + dir + '/X_train', X_train)
+np.save('data/' + dir + '/X_test', X_test)
+np.save('data/' + dir + '/y_train', y_train.to_numpy())
+np.save('data/' + dir + '/y_test', y_test.to_numpy())
+np.save('data/' + dir + '/X', X)
+np.save('data/' + dir + '/y', y.to_numpy())
+np.save('data/' + dir + '/X_val', X_train)
+
+
 # %%

@@ -2,16 +2,18 @@
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 import time
 import pickle
-import pandas as pd
 from sklearn.metrics import mean_absolute_error
 from lightgbm import LGBMRegressor
-import csv
-import os
-from utils import load_data
+from utils import load_data, load_data_numpy
 
+# MAE error: 6.49
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
+
+# MAE error: 6.49
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
 
 # MAE error: 6.09
-# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
 # MAE error: 6.96
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
@@ -65,23 +67,28 @@ def custom_model(X_train, y_train, X_test, save= False):
     return y_pred
 
 
-# MAE error:
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+# MAE error: 6.57
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
 
-# MAE error: 
+# MAE error: 6.34
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
+
+# MAE error: 6.12
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+
+# MAE error: 7.25
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
 
-# MAE error: 
+# MAE error: 7.67
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
 
 def rfr(X_train, y_train, X_test, save= False):
     start_time = time.time()
 
     reg = RandomForestRegressor(
-        n_estimators = 500,
+        n_estimators = 100,
         criterion = 'squared_error',
         max_depth = 18,
-        max_features = 'sqrt',
         n_jobs = -1,
         random_state = 42,
         verbose = 5,

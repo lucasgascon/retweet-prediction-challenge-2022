@@ -15,7 +15,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 device = 'cpu'
 
-#MAE error: 15.81
+# MAE error: 15.81
 X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv')
 
 X = X.to_numpy()
