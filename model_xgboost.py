@@ -8,11 +8,11 @@ from sklearn.metrics import mean_absolute_error
 import time
 import pandas as pd
 import torch
-from utils import load_data
+from utils import load_data, load_data_numpy
 
 
 # MAE error: 6.18
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler') 
 
 # MAE error: 6.89
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
