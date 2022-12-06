@@ -6,14 +6,17 @@ from sklearn.metrics import mean_absolute_error
 from lightgbm import LGBMRegressor
 from utils import load_data, load_data_numpy
 
+# MAE error: 6.81
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing3')
+
 # MAE error: 6.49
-# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
 
 # MAE error: 6.49
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
 
 # MAE error: 6.09
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
 # MAE error: 6.96
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
@@ -66,6 +69,9 @@ def custom_model(X_train, y_train, X_test, save= False):
 
     return y_pred
 
+
+# MAE error: 
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing3')
 
 # MAE error: 6.57
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
