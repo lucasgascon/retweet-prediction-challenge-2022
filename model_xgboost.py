@@ -9,22 +9,23 @@ import time
 import pandas as pd
 import torch
 
-# X_train = pd.read_csv('data_legacy/csv/X_train.csv', index_col=0)
-# X_test = pd.read_csv('data_legacy/csv/X_test.csv', index_col=0)
-# y_train = pd.read_csv('data_legacy/csv/y_train.csv', index_col=0)
-# y_test = pd.read_csv('data_legacy/csv/y_test.csv', index_col=0)
+# 6.61
+# X_train = pd.read_csv('data9/csv/X_train.csv', index_col=0)
+# X_test = pd.read_csv('data9/csv/X_test.csv', index_col=0)
+# y_train = pd.read_csv('data9/csv/y_train.csv', index_col=0)
+# y_test = pd.read_csv('data9/csv/y_test.csv', index_col=0)
+# X = pd.read_csv('data9/csv/X.csv', index_col=0)
+# y = pd.read_csv('data9/csv/y.csv', index_col=0)
+# X_val = pd.read_csv('data9/csv/X_val.csv', index_col=0)
 
 
-X_train = pd.read_csv('data2/csv/X_train.csv', index_col=0)
-X_test = pd.read_csv('data2/csv/X_test.csv', index_col=0)
-y_train = pd.read_csv('data2/csv/y_train.csv', index_col=0)
-y_test = pd.read_csv('data2/csv/y_test.csv', index_col=0)
-
-# dir = 'scale'
-# X_train = np.load('data/' + dir + '/X_train.npy')
-# X_test = np.load('data/' + dir + '/X_test.npy')
-# y_train = np.load('data/' + dir + '/y_train.npy')
-# y_test = np.load('data/' + dir + '/y_test.npy')
+X_train = pd.read_csv('data4/csv/X_train.csv', index_col=0)
+X_test = pd.read_csv('data4/csv/X_test.csv', index_col=0)
+y_train = pd.read_csv('data4/csv/y_train.csv', index_col=0)
+y_test = pd.read_csv('data4/csv/y_test.csv', index_col=0)
+X = pd.read_csv('data4/csv/X.csv', index_col=0)
+y = pd.read_csv('data4/csv/y.csv', index_col=0)
+X_val = pd.read_csv('data4/csv/X_val.csv', index_col=0)
 
 
 dtrain = xgb.DMatrix(X_train, label=y_train)
@@ -83,3 +84,5 @@ print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 # grid_predictions = xgb_grid.predict(X_test) 
 # y_pred = [int(value) if value >= 0 else 0 for value in grid_predictions]
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pre# %%
+
+# %%

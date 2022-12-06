@@ -98,8 +98,8 @@ def pipeline(X, train, std_clf = None):
         X_transformed = std_clf.transform(X)
     else:
         X_transformed = std_clf.transform(X)
-    return X_transformed, std_clf
-    # return X, std_clf
+    # return X_transformed, std_clf
+    return X, std_clf
 
 def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
     X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
@@ -111,7 +111,6 @@ def load_train_data(test, vectorizer_text):
     # Load the training data
     train_data = pd.read_csv("train.csv")
 
-    # vectorizer_text = create_vectorizer_text()
 
     if test == True:
         # Here we split our training data into training and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
@@ -136,10 +135,10 @@ def load_train_data(test, vectorizer_text):
         return X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf
 
     else: return X_train, y_train, vectorizer_text, vectorizer_hashtags, std_clf
-#%%
+
+
 def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
     eval_data = pd.read_csv("evaluation.csv")
-    # vectorizer_text = create_vectorizer_text()
     X_eval, vectorizer_text, vectorizer_hashtags, std_clf = preprocessing(eval_data, 
                         train=False, 
                         vectorizer_text= vectorizer_text,
@@ -148,19 +147,13 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
                         )
     return X_eval
 
-
 #%%
-
 
 vectorizer_text1 = create_vectorizer_text()
 
-
-
 X_train, y_train, X_test, y_test, vectorizer_text1, vectorizer_hashtags, std_clf = load_train_data(test=True, vectorizer_text = vectorizer_text1)
 
-
 X, y, vectorizer_text1, vectorizer_hashtags, std_clf = load_train_data (test=False, vectorizer_text = vectorizer_text1)
-
 
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text1,
@@ -169,23 +162,22 @@ X_val = load_validation_data(
     )
 
 #%%
-# os.makedirs('data4/csv', exist_ok=True)  
-# X_train.to_csv('data4/csv/X_train.csv')
-# X_test.to_csv('data4/csv/X_test.csv')
-# X_val.to_csv('data4/csv/X_val.csv')
-# X.to_csv('data4/csv/X.csv')
-# y_train.to_csv('data4/csv/y_train.csv')
-# y_test.to_csv('data4/csv/y_test.csv')
-# y.to_csv('data4/csv/y.csv')
+os.makedirs('data4/csv', exist_ok=True)  
+X_train.to_csv('data4/csv/X_train.csv')
+X_test.to_csv('data4/csv/X_test.csv')
+X_val.to_csv('data4/csv/X_val.csv')
+X.to_csv('data4/csv/X.csv')
+y_train.to_csv('data4/csv/y_train.csv')
+y_test.to_csv('data4/csv/y_test.csv')
+y.to_csv('data4/csv/y.csv')
 
-#%%
-os.makedirs('data/scale', exist_ok=True)  
-dir = 'scale'
-np.save('data/' + dir + '/X_train', X_train)
-np.save('data/' + dir + '/X_test', X_test)
-np.save('data/' + dir + '/y_train', y_train.to_numpy())
-np.save('data/' + dir + '/y_test', y_test.to_numpy())
-np.save('data/' + dir + '/X', X)
-np.save('data/' + dir + '/y', y.to_numpy())
-np.save('data/' + dir + '/X_val', X_train)
+# os.makedirs('data/scale', exist_ok=True)  
+# dir = 'scale'
+# np.save('data/' + dir + '/X_train', X_train)
+# np.save('data/' + dir + '/X_test', X_test)
+# np.save('data/' + dir + '/y_train', y_train.to_numpy())
+# np.save('data/' + dir + '/y_test', y_test.to_numpy())
+# np.save('data/' + dir + '/X', X)
+# np.save('data/' + dir + '/y', y.to_numpy())
+# np.save('data/' + dir + '/X_val', X_train)
 # %%
