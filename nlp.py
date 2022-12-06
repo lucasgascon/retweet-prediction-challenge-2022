@@ -97,7 +97,6 @@ def preprocess_text(X, vectorizer_text1):
     return X
 
 
-
 vectorizer_text1 = create_vectorizer_text()
 X = preprocess_text(X_train, vectorizer_text1)
 

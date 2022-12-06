@@ -1,6 +1,7 @@
 model/
 data/
 tmp/
+data_legacy/
 data2/
 data6/
 data5/

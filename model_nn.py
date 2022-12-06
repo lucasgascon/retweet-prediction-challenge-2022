@@ -25,22 +25,18 @@ device = 'cpu'
 
 
 # Load dataset
-# dir = 'array'
-# X_train = np.load('data/' + dir + '/X_train.npy')
-# X_test = np.load('data/' + dir + '/X_test.npy')
-# y_train = np.load('data/' + dir + '/y_train.npy')
-# y_test = np.load('data/' + dir + '/y_test.npy')
-# print(X_train.shape)
+dir = 'scale'
+X_train = np.load('data/' + dir + '/X_train.npy')
+X_test = np.load('data/' + dir + '/X_test.npy')
+y_train = np.load('data/' + dir + '/y_train.npy')
+y_test = np.load('data/' + dir + '/y_test.npy')
+print(X_train.shape)
 
 # X_train = pd.read_csv('data2/csv2/X_train.csv', index_col=0).to_numpy()
 # X_test = pd.read_csv('data2/csv2/X_test.csv', index_col=0).to_numpy()
 # y_train = pd.read_csv('data2/csv2/y_train.csv', index_col=0).to_numpy()
 # y_test = pd.read_csv('data2/csv2/y_test.csv', index_col=0).to_numpy()
 
-X_train = pd.read_csv('data7/csv/X_train.csv', index_col=0).to_numpy()
-X_test = pd.read_csv('data7/csv/X_test.csv', index_col=0).to_numpy()
-y_train = pd.read_csv('data7/csv/y_train.csv', index_col=0).to_numpy()
-y_test = pd.read_csv('data7/csv/y_test.csv', index_col=0).to_numpy()
 #%%
 
 class Dataset(torch.utils.data.Dataset):
@@ -71,7 +67,7 @@ class MLP(nn.Module):
   def __init__(self):
     super().__init__()
     self.layers = nn.Sequential(
-      nn.Linear(50, 64),
+      nn.Linear(165, 64),
       nn.ReLU(),
       nn.Linear(64, 32),
       nn.ReLU(),
@@ -94,8 +90,8 @@ valid_dataset = Dataset(X_test, y_test, scale_data=False)
 validloader = torch.utils.data.DataLoader(valid_dataset, batch_size=10, shuffle=True, num_workers=0)
 
 
-# mlp = MLP().to(device)
-mlp = MLP(135, 3, 256, 0.5).to(device)
+mlp = MLP().to(device)
+
 
 # Define the loss function and optimizer
 loss_function = nn.MSELoss(reduction="mean")
@@ -208,6 +204,4 @@ print('Training process has finished.')
 y_pred = mlp(torch.from_numpy(X_test).float()).detach().numpy()
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-
-np.save('pred/pred_nn', y_pred.to_numpy())
 # %%

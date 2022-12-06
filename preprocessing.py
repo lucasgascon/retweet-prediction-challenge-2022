@@ -10,6 +10,7 @@ from sklearn.pipeline import make_pipeline
 from nlp import create_vectorizer_text, preprocess_text
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
 
 import numpy as np
 
@@ -47,7 +48,7 @@ def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
         hashtags_text = pd.DataFrame(vectorizer_hashtags.fit_transform(hashtags_text).toarray(), index = hashtags.index)
     else : 
         hashtags_text = pd.DataFrame(vectorizer_hashtags.transform(hashtags_text).toarray(), index = hashtags.index)
-    X = pd.concat([X, hashtags_text], axis = 1)
+    # X = pd.concat([X, hashtags_text], axis = 1)
     return X, vectorizer_hashtags
 
 def preprocess_urls(X):
@@ -64,14 +65,14 @@ def add_sentiments(X):
     X['polarity_scores_compound'] = X['text'].apply(lambda text : sia.polarity_scores(text)['compound'])
     return X
 
-def other_variables(X_train):
+def other_variables(X):
 
-    mentions = X_train['hashtags'].apply(lambda x : x[2:-2].split(','))
+    mentions = X['hashtags'].apply(lambda x : x[2:-2].split(','))
     mentions.apply(lambda x : x.remove('') if '' in x else x)
     mentions_count = mentions.apply(lambda x : len(x))
-    X_train['mention_count'] = mentions_count
+    X['mention_count'] = mentions_count
     
-    return X_train
+    return X
 
 def add_variables(X, train, vectorizer_text = None, vectorizer_hashtags = None):
     X["len_text"] = X["text"].apply(lambda x: len(x))
@@ -91,14 +92,14 @@ def select_columns(X):
 
 def pipeline(X, train, std_clf = None):
     if train:
-        std_clf = make_pipeline(StandardScaler(), PCA(n_components=50))
-        # std_clf = make_pipeline(StandardScaler())
+        # std_clf = make_pipeline(StandardScaler(), PCA(n_components=50))
+        std_clf = make_pipeline(StandardScaler())
         std_clf.fit(X)
         X_transformed = std_clf.transform(X)
     else:
         X_transformed = std_clf.transform(X)
-    # return X_transformed, std_clf
-    return X, std_clf
+    return X_transformed, std_clf
+    # return X, std_clf
 
 def preprocessing(X, train, vectorizer_text = None, vectorizer_hashtags = None, std_clf = None):
     X, vectorizer_text, vectorizer_hashtags = add_variables(X, train, vectorizer_text, vectorizer_hashtags)
@@ -150,22 +151,6 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
 
 #%%
 
-# dir = 'scale'
-# X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data(test=True)
-# np.save('data/' + dir + '/X_train', X_train)
-# np.save('data/' + dir + '/X_test', X_test)
-# np.save('data/' + dir + '/y_train', y_train.to_numpy())
-# np.save('data/' + dir + '/y_test', y_test.to_numpy())
-# X, y, vectorizer_text, vectorizer_hashtags, std_clf = load_train_data (test=False)
-# np.save('data/' + dir + '/X', X)
-# np.save('data/' + dir + '/y', y.to_numpy())
-# X_val = load_validation_data(
-#     vectorizer_text=vectorizer_text,
-#     vectorizer_hashtags=vectorizer_hashtags,
-#     std_clf = std_clf,
-#     )
-# np.save('data/' + dir + '/X_val', X_train)
-
 
 vectorizer_text1 = create_vectorizer_text()
 
@@ -174,21 +159,33 @@ vectorizer_text1 = create_vectorizer_text()
 X_train, y_train, X_test, y_test, vectorizer_text1, vectorizer_hashtags, std_clf = load_train_data(test=True, vectorizer_text = vectorizer_text1)
 
 
-X, y, vectorizer_text1, std_clf = load_train_data (test=False, vectorizer_text = vectorizer_text1)
+X, y, vectorizer_text1, vectorizer_hashtags, std_clf = load_train_data (test=False, vectorizer_text = vectorizer_text1)
 
 
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text1,
     std_clf = std_clf,
+    vectorizer_hashtags=vectorizer_hashtags,
     )
 
-os.makedirs('data4/csv', exist_ok=True)  
-X_train.to_csv('data4/csv/X_train.csv')
-X_test.to_csv('data4/csv/X_test.csv')
-X_val.to_csv('data4/csv/X_val.csv')
-X.to_csv('data4/csv/X.csv')
-y_train.to_csv('data4/csv/y_train.csv')
-y_test.to_csv('data4/csv/y_test.csv')
-y.to_csv('data4/csv/y.csv')
+#%%
+# os.makedirs('data4/csv', exist_ok=True)  
+# X_train.to_csv('data4/csv/X_train.csv')
+# X_test.to_csv('data4/csv/X_test.csv')
+# X_val.to_csv('data4/csv/X_val.csv')
+# X.to_csv('data4/csv/X.csv')
+# y_train.to_csv('data4/csv/y_train.csv')
+# y_test.to_csv('data4/csv/y_test.csv')
+# y.to_csv('data4/csv/y.csv')
 
 #%%
+os.makedirs('data/scale', exist_ok=True)  
+dir = 'scale'
+np.save('data/' + dir + '/X_train', X_train)
+np.save('data/' + dir + '/X_test', X_test)
+np.save('data/' + dir + '/y_train', y_train.to_numpy())
+np.save('data/' + dir + '/y_test', y_test.to_numpy())
+np.save('data/' + dir + '/X', X)
+np.save('data/' + dir + '/y', y.to_numpy())
+np.save('data/' + dir + '/X_val', X_train)
+# %%
