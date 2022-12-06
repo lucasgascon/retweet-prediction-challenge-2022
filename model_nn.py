@@ -8,6 +8,7 @@ from sklearn.metrics import mean_absolute_error
 import numpy as np
 import time
 import pandas as pd
+from utils import load_data
 
 import datetime 
 from torch.utils.tensorboard import SummaryWriter
@@ -23,21 +24,14 @@ else:
 print('device : ', device)
 device = 'cpu'
 
-
-# Load dataset
-dir = 'scale'
-X_train = np.load('data/' + dir + '/X_train.npy')
-X_test = np.load('data/' + dir + '/X_test.npy')
-y_train = np.load('data/' + dir + '/y_train.npy')
-y_test = np.load('data/' + dir + '/y_test.npy')
-print(X_train.shape)
-
-# X_train = pd.read_csv('data2/csv2/X_train.csv', index_col=0).to_numpy()
-# X_test = pd.read_csv('data2/csv2/X_test.csv', index_col=0).to_numpy()
-# y_train = pd.read_csv('data2/csv2/y_train.csv', index_col=0).to_numpy()
-# y_test = pd.read_csv('data2/csv2/y_test.csv', index_col=0).to_numpy()
-
-#%%
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv')
+X = X.to_numpy()
+y = y.to_numpy()
+X_train = X_train.to_numpy()
+X_test = X_test.to_numpy()
+X_val = X_val.to_numpy()
+y_train = y_train.to_numpy()
+y_test = y_test.to_numpy()
 
 class Dataset(torch.utils.data.Dataset):
   '''
@@ -58,8 +52,6 @@ class Dataset(torch.utils.data.Dataset):
   def __getitem__(self, i):
       return self.X[i], self.y[i]
 
-
-#
 class MLP(nn.Module):
   '''
     Multilayer Perceptron for regression.
@@ -75,12 +67,12 @@ class MLP(nn.Module):
       nn.ReLU(),
     )
 
-
   def forward(self, x):
     '''
       Forward pass
     '''
     return self.layers(x)
+
 
 # Prepare dataset
 train_dataset = Dataset(X_train, y_train, scale_data=False)
@@ -89,9 +81,7 @@ trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=10, shuffle=
 valid_dataset = Dataset(X_test, y_test, scale_data=False)
 validloader = torch.utils.data.DataLoader(valid_dataset, batch_size=10, shuffle=True, num_workers=0)
 
-
 mlp = MLP().to(device)
-
 
 # Define the loss function and optimizer
 loss_function = nn.MSELoss(reduction="mean")
@@ -103,7 +93,7 @@ writer_dir = "./logs/" + now.strftime('%m.%d/%H.%M') + '/'
 tensorboard_writer = SummaryWriter(writer_dir)
 
 # Run the training loop
-for epoch in range(0, 10): # 5 epochs at maximum
+for epoch in range(0, 50): # 5 epochs at maximum
     start_time = time.time()
 
     epoch_train_losses = []

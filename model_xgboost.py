@@ -8,24 +8,13 @@ from sklearn.metrics import mean_absolute_error
 import time
 import pandas as pd
 import torch
-
-# 6.61
-# X_train = pd.read_csv('data9/csv/X_train.csv', index_col=0)
-# X_test = pd.read_csv('data9/csv/X_test.csv', index_col=0)
-# y_train = pd.read_csv('data9/csv/y_train.csv', index_col=0)
-# y_test = pd.read_csv('data9/csv/y_test.csv', index_col=0)
-# X = pd.read_csv('data9/csv/X.csv', index_col=0)
-# y = pd.read_csv('data9/csv/y.csv', index_col=0)
-# X_val = pd.read_csv('data9/csv/X_val.csv', index_col=0)
+from utils import load_data
 
 
-X_train = pd.read_csv('data4/csv/X_train.csv', index_col=0)
-X_test = pd.read_csv('data4/csv/X_test.csv', index_col=0)
-y_train = pd.read_csv('data4/csv/y_train.csv', index_col=0)
-y_test = pd.read_csv('data4/csv/y_test.csv', index_col=0)
-X = pd.read_csv('data4/csv/X.csv', index_col=0)
-y = pd.read_csv('data4/csv/y.csv', index_col=0)
-X_val = pd.read_csv('data4/csv/X_val.csv', index_col=0)
+# MAE error : 6.18
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
 
 
 dtrain = xgb.DMatrix(X_train, label=y_train)
@@ -85,4 +74,3 @@ print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 # y_pred = [int(value) if value >= 0 else 0 for value in grid_predictions]
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pre# %%
 
-# %%

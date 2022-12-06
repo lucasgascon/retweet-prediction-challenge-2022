@@ -162,22 +162,6 @@ X_val = load_validation_data(
     )
 
 #%%
-os.makedirs('data4/csv', exist_ok=True)  
-X_train.to_csv('data4/csv/X_train.csv')
-X_test.to_csv('data4/csv/X_test.csv')
-X_val.to_csv('data4/csv/X_val.csv')
-X.to_csv('data4/csv/X.csv')
-y_train.to_csv('data4/csv/y_train.csv')
-y_test.to_csv('data4/csv/y_test.csv')
-y.to_csv('data4/csv/y.csv')
-
-# os.makedirs('data/scale', exist_ok=True)  
-# dir = 'scale'
-# np.save('data/' + dir + '/X_train', X_train)
-# np.save('data/' + dir + '/X_test', X_test)
-# np.save('data/' + dir + '/y_train', y_train.to_numpy())
-# np.save('data/' + dir + '/y_test', y_test.to_numpy())
-# np.save('data/' + dir + '/X', X)
-# np.save('data/' + dir + '/y', y.to_numpy())
-# np.save('data/' + dir + '/X_val', X_train)
+from utils import save_data
+save_data('csv_50', X, y, X_train, y_train, X_test, y_test, X_val)
 # %%
