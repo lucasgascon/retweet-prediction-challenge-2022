@@ -23,8 +23,9 @@ import test_nlp
 #%%
 
 X_train, y_train, X_test, y_test, vectorizer_text, vectorizer_hashtags, std_clf = pr.load_train_data(test=True, preprocess_text = test_nlp.preprocess_text)
+#X_train, y_train, X_test, y_test = X_train[:10000], y_train[:10000], X_test[:3000], y_test[:3000]
 model_pipe = [LogisticRegression(solver='liblinear'), SVC(), KNeighborsClassifier(), DecisionTreeClassifier(), RandomForestClassifier(), GaussianNB()]
-
+model_pipe=[RandomForestClassifier()]
 #%%
 y_train_bis = []
 y_test_bis = []
@@ -45,12 +46,15 @@ y_test = y_test_bis
 
 #%%
 model_list = ['logistic regr', 'svm', 'knn', 'decision tree', 'random forest', 'naive bayes']
+model_list = ['random forest regr']
 acc_list = []
 auc_list = []
 cm_list = []
 
-for model in model_pipe:
+for i, model in enumerate(model_pipe):
+    print('Fit du modele '+ model_list[i] +' en cours')
     model.fit(X_train, y_train)
+    print('Fitting du modele '+ model_list[i] +' terminado')
     y_pred = model.predict(X_test)
     acc_list.append(metrics.accuracy_score(y_test, y_pred))
     fpr, tpr, _thresholds = metrics.roc_curve(y_test, y_pred)
@@ -70,3 +74,6 @@ for i in range(len(cm_list)):
 #%%
 results = pd.DataFrame({'Model':model_list, 'accuracy':acc_list, 'AUC':auc_list})
 results
+
+#%%
+
