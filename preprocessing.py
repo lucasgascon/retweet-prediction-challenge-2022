@@ -33,7 +33,7 @@ def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
     X['hashtag_count'] = hashtags_count
     hashtags_text = hashtags.apply(lambda x : ' '.join(x))
     if train : 
-        vectorizer_hashtags = TfidfVectorizer(max_features=50, stop_words=stopwords.words('french'))
+        vectorizer_hashtags = TfidfVectorizer(max_features=10, stop_words=stopwords.words('french'))
         hashtags_text = pd.DataFrame(vectorizer_hashtags.fit_transform(hashtags_text).toarray(), index = hashtags.index)
     else : 
         hashtags_text = pd.DataFrame(vectorizer_hashtags.transform(hashtags_text).toarray(), index = hashtags.index)
