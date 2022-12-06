@@ -39,8 +39,8 @@ from model_rfr import train_custom_model
 
 # reg = svm.SVR(n_jobs = -1)
 # reg = KNeighborsRegressor(n_jobs = -1)
-# reg = GradientBoostingRegressor (n_jobs = -1)
-reg = RandomForestRegressor(n_jobs = 6)
+reg = GradientBoostingRegressor (loss = 'huber', n_jobs = -1)
+# reg = RandomForestRegressor(n_jobs = 6)
 reg.fit(X_train, y_train)
 y_pred = reg.predict(X_test)
 y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
