@@ -10,20 +10,7 @@ from sklearn.pipeline import make_pipeline
 from nlp import create_vectorizer_text, preprocess_text
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestClassifier
-
-import numpy as np
-
-import os
-
-seed = 12
-
-# Load the training data
-train_data = pd.read_csv("train.csv")
-y = train_data['retweets_count']
-X = train_data.drop(['retweets_count'], axis=1)
-
-#%%
+from utils import save_data
 
 def preprocess_time(X):
     X['month'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%m")))
@@ -35,7 +22,6 @@ def preprocess_time(X):
     am_pm = {'AM': 0, 'PM':1}
     X['am_pm'] = X['am_pm'].apply(lambda x : am_pm[x])
     return X
-
 
 def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
     hashtags = X['hashtags'].apply(lambda x : x[2:-2].split(','))
@@ -111,7 +97,6 @@ def load_train_data(test, vectorizer_text):
     # Load the training data
     train_data = pd.read_csv("train.csv")
 
-
     if test == True:
         # Here we split our training data into training and testing set. This way we can estimate the evaluation of our model without uploading to Kaggle and avoid overfitting over our evaluation dataset.
         # scsplit method is used in order to split our regression data in a stratisfied way and keep a similar distribution of retweet counts between the two sets
@@ -147,21 +132,14 @@ def load_validation_data(vectorizer_text, vectorizer_hashtags, std_clf):
                         )
     return X_eval
 
-#%%
 
 vectorizer_text1 = create_vectorizer_text()
-
 X_train, y_train, X_test, y_test, vectorizer_text1, vectorizer_hashtags, std_clf = load_train_data(test=True, vectorizer_text = vectorizer_text1)
-
 X, y, vectorizer_text1, vectorizer_hashtags, std_clf = load_train_data (test=False, vectorizer_text = vectorizer_text1)
-
 X_val = load_validation_data(
     vectorizer_text=vectorizer_text1,
     std_clf = std_clf,
     vectorizer_hashtags=vectorizer_hashtags,
     )
-
-#%%
-from utils import save_data
-save_data('csv_50', X, y, X_train, y_train, X_test, y_test, X_val)
+save_data('preprocess_data', X, y, X_train, y_train, X_test, y_test, X_val)
 # %%

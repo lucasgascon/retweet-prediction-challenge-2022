@@ -13,18 +13,11 @@ from utils import load_data
 import datetime 
 from torch.utils.tensorboard import SummaryWriter
 
-# this ensures that the current MacOS version is at least 12.3+
-print(torch.backends.mps.is_available())
-# this ensures that the current current PyTorch installation was built with MPS activated.
-print(torch.backends.mps.is_built())
-if(torch.backends.mps.is_available() & torch.backends.mps.is_built()): 
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
-print('device : ', device)
 device = 'cpu'
 
+#MAE error: 15.81
 X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv')
+
 X = X.to_numpy()
 y = y.to_numpy()
 X_train = X_train.to_numpy()

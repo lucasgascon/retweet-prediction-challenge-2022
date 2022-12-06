@@ -16,7 +16,7 @@ def save_data(name_folder, X, y, X_train, y_train, X_test, y_test, X_val):
     X_train.to_csv('data/' + name_folder +'/X_train.csv')
     X_test.to_csv('data/' + name_folder +'/X_test.csv')
     X_val.to_csv('data/' + name_folder +'/X_val.csv')
-    X.to_csv('data/c' + name_folder +'/X.csv')
+    X.to_csv('data/' + name_folder +'/X.csv')
     y_train.to_csv('data/' + name_folder +'/y_train.csv')
     y_test.to_csv('data/' + name_folder +'/y_test.csv')
     y.to_csv('data/' + name_folder +'/y.csv')
