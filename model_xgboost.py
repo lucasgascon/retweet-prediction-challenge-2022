@@ -11,13 +11,14 @@ import torch
 from utils import load_data
 
 
-# MAE error : 6.18
-# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+# MAE error: 6.18
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
-# MAE error : 6.89
+# MAE error: 6.89
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
 
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv_50')
+# MAE error: 7.23
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
 
 
 dtrain = xgb.DMatrix(X_train, label=y_train)
@@ -77,3 +78,5 @@ print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 # y_pred = [int(value) if value >= 0 else 0 for value in grid_predictions]
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pre# %%
 
+
+# %%

@@ -12,15 +12,13 @@ from utils import load_data
 from model_rfr import custom_model
 
 # GradientBoostingRegressor MAE error: 6.55
-# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
 # MAE error:
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
 
-# MAE error: 
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
-
-
+# MAE error:
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
 
 # reg = train_custom_model(X_train, y_train)
 reg = svm.SVR()
