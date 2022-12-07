@@ -15,8 +15,8 @@ def main_prediction():
     X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data')
     # X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv')
 
-    y_pred = custom_model(X, y, X_val, save = False)
-    # y_pred = rfr(X, y, X_val, save = False)
+    # y_pred = custom_model(X, y, X_val, save = False)
+    y_pred = rfr(X, y, X_val, save = False)
 
     # Dump the results into a file that follows the required Kaggle template
     with open("gbr_predictions.txt", 'w') as f:

@@ -159,5 +159,5 @@ def main_preprocessing():
         )
     save_data('preprocess_data', X, y, X_train, y_train, X_test, y_test, X_val)
 
-main_preprocessing()
+# main_preprocessing()
 # %%
