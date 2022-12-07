@@ -19,18 +19,18 @@ from nltk.corpus import stopwords
 import nltk
 nltk.download('stopwords')
 
+# loading the data
 train_data = pd.read_csv("train.csv")
 y = train_data['retweets_count']
 train_data.drop(columns='retweets_count')
 X_train, X_test, y_train, y_test = train_test_split(train_data, y, random_state=42, test_size=0.3)
-# X_train = X_train[:100][:]
-#print(X_train)
+
+
 def flatten(df, col):
     col_flat = pd.DataFrame([[i, x] for i, y in df[col].apply(list).iteritems() for x in y], columns=['I', col])
     col_flat = col_flat.set_index('I')
     df = df.drop(col, 1)
     df = df.merge(col_flat, left_index=True, right_index=True)
-
     return df
 
 
