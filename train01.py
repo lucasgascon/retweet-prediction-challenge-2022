@@ -6,7 +6,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Lasso
 import pandas as pd
-from model_rfr import train_custom_model
+#from model_rfr import train_custom_model
 
 
 
@@ -46,10 +46,10 @@ def train_model(X_train, y_train, X_test, y_test, method):
         y_pred = reg.predict(X_test)
         y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
         print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-    elif method=='tcm':
-        y_pred_dt = reg = train_custom_model(X_train, y_train, X_test)
-        print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-        return
+    # elif method=='tcm':
+    #     y_pred_dt = reg = train_custom_model(X_train, y_train, X_test)
+    #     print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+    #     return
 
 train_model(X_train, y_train, X_test, y_test, 'lasso')
 # feature_importance = pd.Series(reg.feature_importances_, index= X_train.columns)
