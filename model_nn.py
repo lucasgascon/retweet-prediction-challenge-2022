@@ -8,35 +8,23 @@ from sklearn.metrics import mean_absolute_error
 import numpy as np
 import time
 import pandas as pd
+from utils import load_data
 
 import datetime 
 from torch.utils.tensorboard import SummaryWriter
 
-# this ensures that the current MacOS version is at least 12.3+
-print(torch.backends.mps.is_available())
-# this ensures that the current current PyTorch installation was built with MPS activated.
-print(torch.backends.mps.is_built())
-if(torch.backends.mps.is_available() & torch.backends.mps.is_built()): 
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
-print('device : ', device)
 device = 'cpu'
 
+# MAE error: 15.81
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv')
 
-# Load dataset
-# dir = 'array'
-# X_train = np.load('data/' + dir + '/X_train.npy')
-# X_test = np.load('data/' + dir + '/X_test.npy')
-# y_train = np.load('data/' + dir + '/y_train.npy')
-# y_test = np.load('data/' + dir + '/y_test.npy')
-# print(X_train.shape)
-
-X_train = pd.read_csv('data/csv/X_train.csv', index_col=0).to_numpy()
-X_test = pd.read_csv('data/csv/X_test.csv', index_col=0).to_numpy()
-y_train = pd.read_csv('data/csv/y_train.csv', index_col=0).to_numpy()
-y_test = pd.read_csv('data/csv/y_test.csv', index_col=0).to_numpy()
-#%%
+X = X.to_numpy()
+y = y.to_numpy()
+X_train = X_train.to_numpy()
+X_test = X_test.to_numpy()
+X_val = X_val.to_numpy()
+y_train = y_train.to_numpy()
+y_test = y_test.to_numpy()
 
 class Dataset(torch.utils.data.Dataset):
   '''
@@ -57,53 +45,14 @@ class Dataset(torch.utils.data.Dataset):
   def __getitem__(self, i):
       return self.X[i], self.y[i]
 
-
-# Linear Neural Network class
 class MLP(nn.Module):
-    """[Linear Neural Network Model Generator]
-
-    """
-    def __init__(self, input_size, num_hidden, hidden_dim, dropout):
-        """[summary]
-
-        Args:
-            input_size ([int]): [number of input features]
-            num_hidden ([int]): [number of hidden layers]
-            hidden_dim ([int]): [hidden layer dimension]
-            dropout (float): [dropout rate].
-        """
-        super(MLP, self).__init__()
-        self.hidden_layers = nn.ModuleList([])
-        self.hidden_layers.append(nn.Linear(input_size, hidden_dim))
-        for i in range(num_hidden - 1):
-            self.hidden_layers.append(nn.Linear(hidden_dim, hidden_dim))
-        self.dropout = nn.Dropout(dropout)
-        self.output_projection = nn.Linear(hidden_dim, 1)
-        self.nonlinearity = nn.ReLU()
-
-    def forward(self, x):
-        """[Forward for Neural network]
-
-        Args:
-            x ([Tensor]): [input tensor for raw values]
-        Returns:
-            [Tensor]: [output results from model]
-        """
-        for hidden_layer in self.hidden_layers:
-            x = hidden_layer(x)
-            x = self.dropout(x)
-            x = self.nonlinearity(x)
-        out = self.output_projection(x)
-        return out
-
-class MLP2(nn.Module):
   '''
     Multilayer Perceptron for regression.
   '''
   def __init__(self):
     super().__init__()
     self.layers = nn.Sequential(
-      nn.Linear(50, 64),
+      nn.Linear(165, 64),
       nn.ReLU(),
       nn.Linear(64, 32),
       nn.ReLU(),
@@ -111,14 +60,11 @@ class MLP2(nn.Module):
       nn.ReLU(),
     )
 
-
   def forward(self, x):
     '''
       Forward pass
     '''
     return self.layers(x)
-
-
 
 
 # Prepare dataset
@@ -128,9 +74,7 @@ trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=10, shuffle=
 valid_dataset = Dataset(X_test, y_test, scale_data=False)
 validloader = torch.utils.data.DataLoader(valid_dataset, batch_size=10, shuffle=True, num_workers=0)
 
-
-# mlp = MLP().to(device)
-mlp = MLP(117, 3, 256, 0.5).to(device)
+mlp = MLP().to(device)
 
 # Define the loss function and optimizer
 loss_function = nn.MSELoss(reduction="mean")
@@ -142,7 +86,7 @@ writer_dir = "./logs/" + now.strftime('%m.%d/%H.%M') + '/'
 tensorboard_writer = SummaryWriter(writer_dir)
 
 # Run the training loop
-for epoch in range(0, 10): # 5 epochs at maximum
+for epoch in range(0, 50): # 5 epochs at maximum
     start_time = time.time()
 
     epoch_train_losses = []

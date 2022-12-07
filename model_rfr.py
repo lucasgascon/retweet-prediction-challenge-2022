@@ -1,81 +1,118 @@
 #%%
-from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 import time
 import pickle
-import numpy as np
+from sklearn.metrics import mean_absolute_error
+from lightgbm import LGBMRegressor
+from utils import load_data, load_data_numpy
 
-def get_normal_counter(n, logarithm="10"):
-    """ Get normal counter x from log(x+1) value """
-    if logarithm == "10":
-        return np.array([max(0, x) for x in (np.power(10, n).round().astype(int)-1)])
-    else:
-        return np.array([max(0, x) for x in (np.exp(n).round().astype(int)-1)])
+# MAE error: 6.49
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
 
+# MAE error: 6.49
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
 
-def train_nnrf(X_train, y_train):
-    """ Train and store NNRF (Neural Networks - MLP + Random Forest) """
-    regr = MLPRegressor(random_state=7,
-                        hidden_layer_sizes=(64, 32, 16, 8, 8),
-                        batch_size=1024,
-                        learning_rate_init=.01,
-                        early_stopping=False,
-                        verbose=True,
-                        shuffle=True,
-                        n_iter_no_change=10)
+# MAE error: 6.09
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
 
-    y_train_logscale = np.log(y_train + 1.)
+# MAE error: 6.96
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
 
-    y_train_logscale = y_train_logscale.astype(float)
+# MAE error: 7.46
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
 
-    # fit
+def custom_model(X_train, y_train, X_test, save= False):
     start_time = time.time()
-    regr.fit(np.log(X_train + 1.), y_train_logscale)
-    elapsed_time = time.time() - start_time
-    print("took {} seconds for fitting".format(elapsed_time))
 
-    filename = './model/nnnoval_shuffle.sav'
-    pickle.dump(regr, open(filename, 'wb'))
+    rfc = RandomForestClassifier(
+        n_estimators = 300,
+        criterion = 'entropy',
+        max_depth = 10,
+        n_jobs = -1,
+        random_state = 42,
+        verbose = 5,
+        )
 
-    lr_y_train_predict = regr.predict(np.log(X_train + 1.))
-    # for training residual RF
-    rf_y_train = y_train_logscale - lr_y_train_predict
+    y_train_2 = y_train['retweets_count'].apply(lambda x : 1 if (x>0) else 0)
+    rfc.fit(X_train, y_train_2)
+    classifier_test = rfc.predict(X_test)
+    
+    # save randomforest classifier
+    if save:
+        filename = './model/randomforest_classifier_1.sav'
+        pickle.dump(rfc, open(filename, 'wb'))
 
-    reg = RandomForestRegressor(max_depth=18,
-                                n_estimators=500,
-                                random_state=77,
-                                n_jobs=7,
-                                verbose=5)
-    start_time = time.time()
-    reg.fit(X_train, rf_y_train, )
-    elapsed_time = time.time() - start_time
-    print("took {} seconds for fitting".format(elapsed_time))
-    # save randomforest regressor
-    filename = './model/randomforest_regressor_500e.sav'
-    pickle.dump(reg, open(filename, 'wb'))
-
-    return regr, reg
-
-
-def train_custom_model(X_train, y_train):
-    reg = RandomForestRegressor(
-        max_depth = 18,
-        n_estimators = 100,
-        # criterion = 'absolute_error',
-        criterion = 'squared_error',
-        max_features = 'auto',
-        random_state = 0,
-        n_jobs = 5,
+    reg = LGBMRegressor(
+        boosting_type='gbdt',
+        learning_rate = 0.037,
+        n_estimators = 300,
+        n_jobs = -1,
+        random_state = 42, 
         verbose = 5,
     )
-    start_time = time.time()
+    
     reg.fit(X_train, y_train)
     elapsed_time = time.time() - start_time
     print("took {} seconds for fitting".format(elapsed_time))
+
+    # save LGBM regressor
+    if save:
+        filename = './model/lgbmr_1.sav'
+        pickle.dump(reg, open(filename, 'wb'))
+    
+    y_pred = reg.predict(X_test)
+    y_pred = [y_pred[i]*classifier_test[i] for i in range(len(y_pred))]
+    y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+
+    return y_pred
+
+
+# MAE error: 6.57
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
+
+# MAE error: 6.34
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
+
+# MAE error: 6.12
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+
+# MAE error: 7.25
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
+
+# MAE error: 7.67
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv50')
+
+def rfr(X_train, y_train, X_test, save= False):
+    start_time = time.time()
+
+    reg = RandomForestRegressor(
+        n_estimators = 100,
+        criterion = 'squared_error',
+        max_depth = 18,
+        n_jobs = -1,
+        random_state = 42,
+        verbose = 5,
+        )
+    
+    reg.fit(X_train, y_train)
+    elapsed_time = time.time() - start_time
+    print("took {} seconds for fitting".format(elapsed_time))
+
     # save randomforest regressor
-    filename = './model/randomforest_regressor_mine3.sav'
-    pickle.dump(reg, open(filename, 'wb'))
-    return reg
+    if save:
+        filename = './model/rfc_1.sav'
+        pickle.dump(reg, open(filename, 'wb'))
+    
+    y_pred = reg.predict(X_test)
+    y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+    
+
+    return y_pred
+
+y_pred = rfr(X_train, y_train, X_test, save = False)
+# y_pred = custom_model(X_train, y_train, X_test, save = False)
+print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+
 
 
 
