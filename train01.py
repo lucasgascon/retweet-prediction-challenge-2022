@@ -6,6 +6,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Lasso
 import pandas as pd
+from model_rfr import train_custom_model
+
 
 
 dir = 'scale'
@@ -21,31 +23,35 @@ y_test = np.load('data/' + dir + '/y_test.npy')
 # y_test = pd.read_csv('data/csv/y_test.csv', index_col=0)
 
 # %%
-from model_rfr import train_custom_model
 # reg = train_custom_model(X_train, y_train)
 
+def train_model(X_train, y_train, X_test, y_test, method):
+    if method == "DTG":
+        dt_reg = DecisionTreeRegressor(random_state=0, criterion='friedman_mse', ccp_alpha=0.1)
+        dt_reg.fit(X_train, y_train)
+        y_pred_dt = dt_reg.predict(X_test)
+        y_pred = [int(value) if value >= 0 else 0 for value in y_pred_dt]
+        print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+        return 
+    elif method == "lasso":
+        clf = Lasso(alpha=0.2)
+        clf.fit(X_train,y_train)
+        y_pred_clf = clf.predict(X_test)
+        y_pred = [int(value) if value >= 0 else 0 for value in y_pred_clf]
+        print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+        return
+    elif method =='rfr':
+        reg = RandomForestRegressor()
+        reg.fit(X_train, y_train)
+        y_pred = reg.predict(X_test)
+        y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
+        print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+    elif method=='tcm':
+        y_pred_dt = reg = train_custom_model(X_train, y_train, X_test)
+        print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
+        return
 
-dt_reg = DecisionTreeRegressor(random_state=0, criterion='friedman_mse', ccp_alpha=0.1)
-dt_reg.fit(X_train, y_train)
-y_pred_dt = dt_reg.predict(X_test)
-y_pred = [int(value) if value >= 0 else 0 for value in y_pred_dt]
-print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-
-
-# clf = Lasso(alpha=0.2)
-# clf.fit(X_train,y_train)
-# y_pred_clf = clf.predict(X_test)
-# y_pred = [int(value) if value >= 0 else 0 for value in y_pred_clf]
-# print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-
-
-# reg = RandomForestRegressor()
-# reg.fit(X_train, y_train)
-# y_pred = reg.predict(X_test)
-# y_pred = [int(value) if value >= 0 else 0 for value in y_pred]
-# print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
-
-
+train_model(X_train, y_train, X_test, y_test, 'lasso')
 # feature_importance = pd.Series(reg.feature_importances_, index= X_train.columns)
 # feature_importance.sort_values(ascending=False)
 

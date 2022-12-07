@@ -27,7 +27,6 @@ X = train_data.drop(['retweets_count'], axis=1)
 #%%
 
 def preprocess_time(X):
-    # X['month'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%m")))
     X['hour'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%H")))
     X['day'] = X['timestamp'].apply(lambda timestamp : datetime.fromtimestamp(timestamp / 1000).strftime("%a"))
     day = {'Mon':1, 'Tue':1, 'Wed':1, 'Thu':1, 'Fri': 0, 'Sat':0, 'Sun':1}
