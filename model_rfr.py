@@ -8,7 +8,8 @@ from utils import load_data, load_data_numpy
 
 # MAE error: 6.49
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data')
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data')
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
 
 # MAE error: 6.49
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data_numpy('preprocessing_stscaler')
@@ -110,8 +111,8 @@ def rfr(X_train, y_train, X_test, save= False):
 
     return y_pred
 
-y_pred = rfr(X_train, y_train, X_test, save = False)
-# y_pred = custom_model(X_train, y_train, X_test, save = False)
+# y_pred = rfr(X_train, y_train, X_test, save = False)
+y_pred = custom_model(X_train, y_train, X_test, save = False)
 print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
 

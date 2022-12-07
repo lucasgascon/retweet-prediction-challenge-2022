@@ -194,16 +194,16 @@ train_data = pd.read_csv("train.csv")
 train_data.drop(columns='retweets_count')
 evaluation_data = pd.read_csv("evaluation.csv")
 
-def preprocess_text_6(X, train = True, vectorizer_text = None):
+def preprocess_text_6(X, train = True, vectorizer_text = None, size=20, window_size = 4):
     
     text_list = X['text'].apply(lambda x : x.split(' '))
-    vectorizer_text = Word2Vec(vector_size=50, window=3, min_count=1, workers=-1)
+    vectorizer_text = Word2Vec(size=size, window=window_size, min_count=1, workers=-1)
     vectorizer_text.build_vocab(text_list)
     vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 20)
     text = X['text'].apply(lambda x : x.split(' '))
     X_pretext = []
     for tweet in text:
-        moy = np.array([0.0 for i in range(50)])
+        moy = np.array([0.0 for i in range(size)])
         for word in tweet:
             moy+=vectorizer_text.wv[word]
         X_pretext.append(moy/len(tweet))
@@ -221,11 +221,11 @@ def preprocess_text_6(X, train = True, vectorizer_text = None):
 
     return X_pretext, vectorizer_text
 
-def create_train_df(X, train = True, vectorizer_text = None, modele = 'base', function = preprocess_text_2):
+def create_train_df(X, train = True, vectorizer_text = None, modele = 'base', function = preprocess_text_6, size=20, window_size = 20):
     if function == preprocess_text:
         return function(X, train, vectorizer_text)
 
-    X_pretext, vectorizer_text = function(X, train, vectorizer_text)
+    X_pretext, vectorizer_text = function(X, train, vectorizer_text, size, window_size)
     X_clean = []
     for ligne in X_pretext:
         X_clean.append(list(ligne)) 
@@ -236,16 +236,4 @@ def create_train_df(X, train = True, vectorizer_text = None, modele = 'base', fu
     
     X = pd.concat([X, df_clean], axis = 1)
     return X, vectorizer_text
-
-create_train_df(X_train, function = preprocess_text_6)[0]
-# %%
-
-from gensim.test.utils import common_texts
-from gensim.models import Word2Vec
-
-
-text_list = X_train['text'].apply(lambda x : x.split(' '))
-vectorizer_text = Word2Vec(vector_size=100, window=5, min_count=1, workers=4)
-vectorizer_text.build_vocab(text_list)
-vectorizer_text.train(text_list, total_examples = vectorizer_text.corpus_count, epochs = 1)
 # %%

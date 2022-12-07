@@ -13,8 +13,7 @@ from utils import load_data
 
 # MAE error: 6.18
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data') 
-
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
 
 # MAE error: 6.89
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')
@@ -33,7 +32,7 @@ xgb_params = {
     'booster' : 'gbtree',
     'objective': 'reg:squarederror',
     'lambda': 1.2,   
-    'alpha': 0.4, 
+    'alpha': 0.4,
     'n_jobs': 5,
 }
 
