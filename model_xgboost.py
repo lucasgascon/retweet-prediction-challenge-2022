@@ -12,7 +12,9 @@ from utils import load_data
 
 
 # MAE error: 6.18
-X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+# X, y, X_train, y_train, X_test, y_test, X_val = load_data('old_csv') 
+X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data') 
+
 
 # MAE error: 6.89
 # X, y, X_train, y_train, X_test, y_test, X_val = load_data('csv150')

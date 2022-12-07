@@ -26,7 +26,7 @@ def preprocess_text(X, vectorizer_text1):
     text = X['text'].apply(lambda x : x.split(' '))
     X_pretext = []
     for tweet in text:
-        moy = np.array([0.0 for i in range(50)])
+        moy = np.array([0.0 for i in range(20)])
         for word in tweet:
             moy+=vectorizer_text1.wv[word]
         X_pretext.append(moy/len(tweet))
@@ -42,7 +42,6 @@ def preprocess_text(X, vectorizer_text1):
 
 
 def preprocess_time(X):
-    X['month'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%m")))
     X['hour'] = X['timestamp'].apply(lambda timestamp : int(datetime.fromtimestamp(timestamp / 1000).strftime("%H")))
     X['day'] = X['timestamp'].apply(lambda timestamp : datetime.fromtimestamp(timestamp / 1000).strftime("%a"))
     day = {'Mon':1, 'Tue':2, 'Wed':3, 'Thu':4, 'Fri': 5, 'Sat':6, 'Sun':7}
@@ -63,7 +62,7 @@ def preprocess_hashtags(X, train = True, vectorizer_hashtags = None):
         hashtags_text = pd.DataFrame(vectorizer_hashtags.fit_transform(hashtags_text).toarray(), index = hashtags.index)
     else : 
         hashtags_text = pd.DataFrame(vectorizer_hashtags.transform(hashtags_text).toarray(), index = hashtags.index)
-    X = pd.concat([X, hashtags_text], axis = 1)
+    # X = pd.concat([X, hashtags_text], axis = 1)
     return X, vectorizer_hashtags
 
 def preprocess_urls(X):
