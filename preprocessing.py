@@ -96,7 +96,7 @@ def add_variables(X, train, vectorizer_text = None):
     X, vectorizer_text = preprocess_text(X, train, vectorizer_text)
 
     X = preprocess_time(X)
-    X = preprocess_hashtags(X, train)
+    X = preprocess_hashtags(X)
     X = preprocess_urls(X)
     X = add_sentiments(X)
     return X, vectorizer_text
