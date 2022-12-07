@@ -110,7 +110,7 @@ def rfr(X_train, y_train, X_test, save= False):
 
     return y_pred
 
-y_pred = rfr(X_train, y_train, X_test, save = False)
+# y_pred = rfr(X_train, y_train, X_test, save = False)
 # y_pred = custom_model(X_train, y_train, X_test, save = False)
 # print("Prediction error:", mean_absolute_error(y_true=y_test, y_pred=y_pred))
 
