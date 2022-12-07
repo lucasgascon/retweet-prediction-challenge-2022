@@ -4,13 +4,12 @@ import csv
 import pandas as pd
 import os
 from utils import load_data
-from model_rfr import custom_model, rfr
 
 ###################################
 # Once we finalized our features and model we can train it using the whole training set and then produce prediction for the evaluating dataset
 ###################################
 def main_prediction():
-
+    from model_rfr import custom_model, rfr
     eval_data = pd.read_csv("evaluation.csv")
 
     X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocess_data')

@@ -14,6 +14,12 @@ For the training we tried different models which are separated in different file
 
 2. **To get a prediction thanks to our code**
 
-- Step 1: **Run preprocessing.py**. This will create files with the modified data.  
-- Step 2: **Run prediction.py**. This file calls the ... model and returns a .csv file predicting the number of retweets for the data in evaluation.csv.   
+**Firts method**
+
+- Just run the main.ipynb file that will create a file with the retweet prediction in pred/predictions.csv.
+
+**Second method**
+
+- Step 1: **Run preprocessing.py**. This will create files with the modified data.  You need to uncomment the last line.
+- Step 2: **Run prediction.py**. This file calls the ... model and returns a .csv file predicting the number of retweets for the data in evaluation.csv.  You need to uncomment the last line.
 - Step 3: **Get the predictions in pred/predictions.csv**
