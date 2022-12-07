@@ -71,7 +71,7 @@ def create_vectorizer_text():
     X = pd.concat([train_data, evaluation_data], axis = 0)
 
     text_list = X['text'].apply(lambda x : x.split(' '))
-    vectorizer_text1 = Word2Vec(vector_size=50, window=2, min_count=1, workers=-1)
+    vectorizer_text1 = Word2Vec(vector_size=50, window=5, min_count=1, workers=-1)
     vectorizer_text1.build_vocab(text_list)
     vectorizer_text1.train(text_list, total_examples = vectorizer_text1.corpus_count, epochs = 30)
 
