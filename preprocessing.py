@@ -115,10 +115,13 @@ def load_validation_data(vectorizer_text):
                         )
     return X_eval
 
-X_train, y_train, X_test, y_test, vectorizer_text = load_train_data(test=True)
-X, y, vectorizer_text = load_train_data (test=False)
-X_val = load_validation_data(
-    vectorizer_text=vectorizer_text,
-    )
-save_data('preprocessing', X, y, X_train, y_train, X_test, y_test, X_val)
+def main_processing():
+    X_train, y_train, X_test, y_test, vectorizer_text = load_train_data(test=True)
+    X, y, vectorizer_text = load_train_data (test=False)
+    X_val = load_validation_data(
+        vectorizer_text=vectorizer_text,
+        )
+    save_data('preprocessing', X, y, X_train, y_train, X_test, y_test, X_val)
+    
+# main_processing()
 # %%
