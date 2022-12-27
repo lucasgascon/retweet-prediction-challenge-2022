@@ -12,10 +12,8 @@ import time
 from catboost import CatBoostRegressor
 import pickle
 
-
 dir = 'csv'
 X, y, X_train, y_train, X_test, y_test, X_val = load_data('preprocessing')
-
 
 def model(X_train, y_train, X_test, save= False):
     start_time = time.time()
